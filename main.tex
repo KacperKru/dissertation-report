@@ -1,0 +1,234 @@
+% =============================================================================
+% Template dissertation using the qdissertation class
+% =============================================================================
+% This file is the main entry point. Build: make (uses latexmk; see Makefile).
+% To use another engine: make ENGINE=xelatex or make ENGINE=lualatex.
+%
+% SPDX-FileCopyrightText: 2026 Frank Langbein <frank@langbein.org>
+% SPDX-License-Identifier: LPPL-1.3c
+% SPDX-License-Identifier: CC-BY-SA-4.0
+%
+% This template and other .tex/.bib files in this directory are part of the
+% same work and may be distributed and/or modified under the LaTeX Project
+% Public License (LPPL), version 1.3c. See LICENSE file.
+%
+% -----------------------------------------------------------------------------
+% Overview (qdissertation class)
+% -----------------------------------------------------------------------------
+% The class is a wrapper around the standard book class. Layout: A4, 12pt,
+% 3cm margins; single line spacing; ragged-right; main text 12pt, footnotes and
+% captions at least 11pt; preliminary pages in roman numerals, then Arabic
+% for main matter. Chapter style: top bar in header, ``Chapter N'' or
+% ``Appendix A'' in header; number/letter and title on first line of chapter.
+%
+% -----------------------------------------------------------------------------
+% Variations (degree, structure)
+% -----------------------------------------------------------------------------
+% Select your degree via \degree below; commented alternatives shown for
+% BSc, MSc, MPhil. For some institutions, Chapter 6 (Reflection on Learning)
+% may be omitted or merged into another chapter; comment out that \chapter
+% and \input as needed.
+%
+% -----------------------------------------------------------------------------
+% Class options
+% -----------------------------------------------------------------------------
+% Font: mixed (default) = sans text + serif math; sans = all sans-serif;
+%   serif = serif text and math.
+% Layout: oneside (default) or twoside.
+% Citation: numeric (default) = plainnat, [1], [1,2]; harvard = agsm, (Author, 2000).
+% Line spacing: single (default); onehalfspacing; or linespread115/linespread12
+%   for institutions allowing 1.0--1.3.
+% Engine: pdfTeX vs XeLaTeX/LuaLaTeX is detected for font setup.
+%
+% -----------------------------------------------------------------------------
+% Metadata and title page
+% -----------------------------------------------------------------------------
+% \title, \author, \degree, \university, \date drive the generated title page.
+%
+% -----------------------------------------------------------------------------
+% License and copyright (SPDX)
+% -----------------------------------------------------------------------------
+% \copyrightholder defaults to \author; \licenseyear defaults to current year.
+% When \license is set: (1) a copyright page is inserted after the abstract;
+% (2) a License chapter is inserted just before the bibliography.
+% If qdissertation-licenses.tex is present, the class loads it for full
+% license text; otherwise name + URL only.
+%
+% -----------------------------------------------------------------------------
+% Float placement (figures, tables, algorithms)
+% -----------------------------------------------------------------------------
+% Placement letters: h = here, t = top, b = bottom, p = float page. E.g.\@
+% [htbp], [t], [!t]. Use [H] (float pkg) sparingly. The class relaxes float
+% parameters so more floats fit per page.
+%
+% -----------------------------------------------------------------------------
+% LaTeX formatting: \citep/\citet (not \cite); ~ before \citep/\citet after a word;
+% \@ after abbreviation; ~ for non-breaking (Fig.~1); -- en-dash, --- em-dash.
+% Reviewer comments: %ID (e.g.\@ %F) at line start, space after ID.
+%
+% -----------------------------------------------------------------------------
+% Word count: run ``make wordcount'' (texcount -inc; per-file and total with
+% caption words shown separately so you can apply your institution's rules).
+% Word limits typically apply to main body only; exclude front matter, captions,
+% appendices. Confirm your institution's word limits and structure before submission.
+%
+% -----------------------------------------------------------------------------
+% Submission: ensure PDF has embedded fonts (pdflatex does this by default),
+% no encryption, and is compatible with your institution's requirements.
+% Run make wordcount and confirm main-body limit. Appendices and captions
+% are excluded from word counts in many institutional rules.
+% =============================================================================
+\documentclass[mixed,oneside,numeric]{qdissertation}
+
+% -----------------------------------------------------------------------------
+% Optional: use a different acronyms file
+% -----------------------------------------------------------------------------
+%\renewcommand{\qdissertationacronymfile}{my-acronyms.tex}
+
+% -----------------------------------------------------------------------------
+% Useful packages for dissertation writing
+% -----------------------------------------------------------------------------
+
+% Tables
+\usepackage{tabularray}      % Flexible column types, rules, longtblr for multi-page tables
+\usepackage{longtable}       % Tables that span multiple pages (or use tabularray longtblr)
+
+% Math, symbols, related
+\usepackage{mathtools}       % Extensions to amsmath (matrix envs, \DeclarePairedDelimiter)
+\usepackage{pifont}          % Dingbat symbols, e.g. \ding{51}, \ding{43}
+\usepackage{siunitx}         % Units and numbers: \SI{3}{m/s}, \num{1000}
+\usepackage{relsize}         % \textlarger, \textsmaller for relative font sizing
+\usepackage[version=4]{mhchem} % Chemical formulae: \ce{H2O}, \ce{CO2}, \ce{^1H-NMR}
+
+% Floats
+\usepackage{float}           % [H] = here definitely
+\usepackage{stfloats}       % Improved placement for bottom floats
+\usepackage{subcaption}     % Subfigures with (a), (b) and per-subfigure captions
+\usepackage{rotating}       % \begin{sidewaystable}, \begin{sidewaysfigure} for wide content
+
+% Algorithms
+\usepackage{algorithm}       % Numbered algorithm floats and List of Algorithms
+\usepackage[noend]{algpseudocode}
+
+% Other useful packages
+\usepackage{lipsum}          % Placeholder text: \lipsum[n], \lipsum[1-5], etc.
+\usepackage{enumitem}       % Customise list labels, spacing
+\usepackage{verbatim}       % \begin{verbatim} ... \end{verbatim} for code
+\usepackage{afterpage}      % \afterpage{\clearpage} to clear after current page
+
+% -----------------------------------------------------------------------------
+% Dissertation metadata
+% -----------------------------------------------------------------------------
+\title{Template Dissertation Title: Each Word Capitalised}
+\author{Your Full Name}
+% Degree
+\degree{BSc Computer Science}
+% \degree{MSc Advanced Computer Science}
+\university{Your University}
+\date{February 2026}
+
+% License and copyright following SPDX. (optional; comment out if not needed).
+% Needs qdissertation-licenses.tex for license text in the License chapter.
+\license{CC-BY-SA-4.0}
+\copyrightholder{Your Full Name}
+\licenseyear{2026}
+
+\begin{document}
+
+\frontmatter
+
+% \maketitle{...} produces: title page, (copyright page if \license set), abstract,
+% then frontlists: TOC, List of Figures, List of Tables, List of Algorithms,
+% List of Acronyms (if acronyms.tex defines \newacronym).
+% Current order: Title, (copyright), Abstract, TOC/LOF/LOT/LOA, Dedication,
+% Acknowledgements. Some institutions prefer Acknowledgements before TOC;
+% reordering is optional and project-specific.
+% Typically 200--300 words. State problem, methods, and main results.
+\maketitle{%
+  This is the abstract: a short, self-contained summary of the dissertation.
+  It should state the problem, methods, and main results so that a reader
+  can understand the scope without reading the full document. Replace with
+  your own abstract.
+}
+
+% -----------------------------------------------------------------------------
+% Optional front-matter chapters (unnumbered)
+% -----------------------------------------------------------------------------
+
+\chapter{Dedication}
+% Replace with your dedication (one or two lines).
+To my family.
+
+\chapter{Acknowledgements}
+% Replace with your acknowledgements. Here you can also acknowledge any contributions from other
+% parties to the work.
+I thank my supervisors and colleagues for their support.
+
+%\chapter{Declaration}
+% Replace with your declaration (e.g. that the work is your own, and any
+% required statements on collaboration, publications, or word count).
+% Often this is submitted in separate forms or not needed, and does not
+% have to be here.
+%This dissertation is the result of my own work. Where reference is made to other work, this is indicated in the text.
+
+%\chapter{Publications, data and code}
+\chapter{Data and code}
+% List publications, if available or maybe planned, and state where data and code produced for this
+% dissertation are available. Note, you usually must submit any sources and simlar you ahve
+% written with your dissertation.
+% Replace with your own entries; you can use \citep{key} for publications.
+
+%\section{Publications}
+% Papers (and optionally other outputs) that form part of or arise from this thesis.
+% These can also be discussed in the introduction (what has been published or is planned).
+%\begin{enumerate}
+%  \item Author. Title. \textit{Journal}, volume, pages, year.~\citep{example-paper}
+%\end{enumerate}
+
+\section{Data}
+% Datasets produced in this work and where they are available (repository, DOI, or ``on request'').
+Data supporting this dissertation are available from [repository/DOI or ``available on request'']. Replace with your statement.
+
+\section{Code}
+% Software or code produced in this work and where it is available (repository, DOI, etc.).
+Code produced for this dissertation is available from [repository/DOI or ``available on request'']. Replace with your statement.
+
+\mainmatter
+
+% -----------------------------------------------------------------------------
+% Main chapters: standard dissertation structure
+% -----------------------------------------------------------------------------
+% For some institutions, Chapter 6 (Reflection on Learning) may be omitted or
+% merged; comment out the \chapter and \input for C6 as needed.
+\chapter{Introduction}\label{ch1}
+\input{C1/chapter1}
+
+\chapter{Background}\label{ch2}
+\input{C2/chapter2}
+
+\chapter{Methodology}\label{ch3}
+\input{C3/chapter3}
+
+\chapter{Results and Evaluation}\label{ch4}
+\input{C4/chapter4}
+
+\chapter{Conclusions and Future Work}\label{ch5}
+\input{C5/chapter5}
+
+\chapter{Reflection on Learning}\label{ch6}
+\input{C6/chapter6}
+
+\backmatter
+
+% -----------------------------------------------------------------------------
+% Appendices (lettered A, B, ... in headers and TOC)
+% -----------------------------------------------------------------------------
+\appendix
+\chapter{Supplementary Material}\label{app:supp}
+\input{Appendix/appendix}
+
+% Bibliography (always last): \bib{bibfile} uses natbib (numeric or harvard per class option)
+% and inserts the License chapter if \license was set.
+\bib{bibliography}
+
+\end{document}
