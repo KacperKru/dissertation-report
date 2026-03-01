@@ -3,7 +3,7 @@
 > SPDX-FileCopyrightText: 2026 Frank Langbein <frank@langbein.org>\
 > SPDX-License-Identifier: LPPL-1.3c
 
-The **qdissertation** class is a LaTeX class for dissertation reports (undergraduate and master's), plus a ready-to-use template. It provides a clean layout (A4, 12pt, single spacing), optional sans/serif/mixed fonts, numeric or author--year citations, and a compact chapter style. The template demonstrates the structure and can be filled with your own content.
+The **qdissertation** class is a LaTeX class for dissertation reports (undergraduate and master's), plus a ready-to-use template. It provides a clean layout (A4, 12pt, single spacing), optional sans (default), serif, or hacker fonts, numeric or author--year citations, and a compact chapter style. The template demonstrates the structure and can be filled with your own content.
 
 Variations (degree, optional Reflection chapter) are selectable via commented options in `main.tex`. Confirm your institution's word limits and structure before submission.
 
