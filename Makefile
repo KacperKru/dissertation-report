@@ -1,5 +1,6 @@
 # Makefile for qdissertation template (uses latexmk)
-# Main dissertation file: main.tex. Run: make help for targets.
+# Main dissertation file: main.tex. Example initial plan: plan.tex.
+# Run: make help for targets.
 #
 # LaTeX engine: set ENGINE to lua (default), pdf, or xe.
 #   make              # lualatex
@@ -10,23 +11,27 @@
 # SPDX-License-Identifier: LPPL-1.3c
 
 MAIN = main
+PLAN = plan
 ENGINE ?= lua
 # Seed used for obfuscated fonts. Override with `make hacker-font SEED=...`.
 # If not provided, we pick a timestamp seed so all generated fonts share one permutation.
 SEED ?= $(shell date +%s)
 
 # ------------------------------------------------------------------------------
-# Default: build (first target). Run "make help" for all targets.
+# Default: build dissertation and example plan (first target).
+# Run "make help" for all targets.
 # ------------------------------------------------------------------------------
 .PHONY: all
-all: $(MAIN).pdf
+all: $(MAIN).pdf $(PLAN).pdf
 
 # ------------------------------------------------------------------------------
 # Help
 # ------------------------------------------------------------------------------
 help:
 	@echo "qdissertation template Makefile targets:"
-	@echo "  make [all]     Build $(MAIN).pdf (default)."
+	@echo "  make [all]     Build $(MAIN).pdf and $(PLAN).pdf (default)."
+	@echo "  make main      Build $(MAIN).pdf only."
+	@echo "  make plan      Build $(PLAN).pdf only (initial plan example)."
 	@echo "  make help      Show this help."
 	@echo "  make clean    Remove build artifacts (keep PDF)."
 	@echo "  make distclean  clean + remove $(MAIN).pdf"
@@ -52,7 +57,7 @@ endif
 
 LATEXMK = latexmk
 
-.PHONY: clean distclean wordcount check help hacker-font
+.PHONY: clean distclean wordcount check help hacker-font main plan
 
 # ------------------------------------------------------------------------------
 # Obfuscation: generate permuted fonts + permutation table
@@ -122,6 +127,15 @@ $(MAIN).pdf: $(MAIN).tex qdissertation.cls bibliography.bib acronyms.tex \
 	-makeglossaries $(MAIN)
 	$(LATEXMK) $(LATEXMK_ENGINE) $(LATEXMK_CMD) $(MAIN)
 
+$(PLAN).pdf: $(PLAN).tex qproposal.cls bibliography.bib acronyms.tex
+	$(LATEXMK) $(LATEXMK_ENGINE) $(LATEXMK_CMD) $(PLAN)
+	-makeglossaries $(PLAN)
+	$(LATEXMK) $(LATEXMK_ENGINE) $(LATEXMK_CMD) $(PLAN)
+
+main: $(MAIN).pdf
+
+plan: $(PLAN).pdf
+
 clean:
 	$(LATEXMK) -c $(MAIN)
 	rm -f *.aux *.log *.out *.toc *.lof *.lot *.loa
@@ -130,7 +144,7 @@ clean:
 	rm -f *.fls *.fdb_latexmk *.synctex.gz
 
 distclean: clean
-	rm -f $(MAIN).pdf
+	rm -f $(MAIN).pdf $(PLAN).pdf
 	rm -rf fonts
 
 # Word count: includes \input files (-inc). Full count = text + headers + captions.

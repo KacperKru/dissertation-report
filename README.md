@@ -3,7 +3,9 @@
 > SPDX-FileCopyrightText: 2026 Frank Langbein <frank@langbein.org>\
 > SPDX-License-Identifier: LPPL-1.3c
 
-The **qdissertation** class is a LaTeX class for dissertation reports (undergraduate and master's), plus a ready-to-use template. It provides a clean layout (A4, 12pt, single spacing), optional sans (default), serif, or hacker fonts, numeric or author--year citations, and a compact chapter style. The template demonstrates the structure and can be filled with your own content.
+The **qdissertation** class is a LaTeX class for dissertation reports (undergraduate and master's), plus ready-to-use templates. It provides a clean layout (A4, 12pt, single spacing), optional sans (default), serif, or hacker fonts, numeric or author--year citations, and a compact chapter style. The main template demonstrates the dissertation structure and can be filled with your own content.
+
+The package also includes a short **initial plan / proposal** example (`plan.tex`) based on the separate `qproposal` class. This is an article-style layout for project plans with sections such as Project Description, Aims and Objectives, Feasibility, Work Plan, and References. It is generic enough to be adapted for different project modules and institutions.
 
 Variations (degree, optional Reflection chapter) are selectable via commented options in `main.tex`. Confirm your institution's word limits and structure before submission.
 
@@ -21,7 +23,9 @@ For electronic submission, use `make` (lualatex, default) or `make ENGINE=pdf`; 
 
 The Makefile uses **latexmk** to run the LaTeX engine, bibliography, and cross-references as needed.
 
-- **Build the dissertation:** `make` or `make all` (produces `main.pdf`).
+- **Build the dissertation and example plan:** `make` or `make all` (produces `main.pdf` and `plan.pdf`).
+- **Build only the dissertation:** `make main`.
+- **Build only the example initial plan:** `make plan` (produces `plan.pdf`).
 - **Remove build artifacts:** `make clean`. Use `make distclean` to also remove `main.pdf`.
 - **Word count:** `make wordcount` for per-file and total word count (caption words shown separately).
 
