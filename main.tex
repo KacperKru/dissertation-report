@@ -178,18 +178,18 @@
 % -----------------------------------------------------------------------------
 % Dissertation metadata
 % -----------------------------------------------------------------------------
-\title{Template Dissertation Title in Title Case}
-\author{Your Full Name}
+\title{Music player designed for people with dementia}
+\author{Kacper Kruszewski}
 % Degree
 \degree{BSc Computer Science}
 % \degree{MSc Advanced Computer Science}
-\university{Your University}
-\date{February 2026}
+\university{Cardiff University}
+\date{May 2026}
 
 % License and copyright following SPDX. (optional; comment out if not needed).
 % Needs qdissertation-licenses.tex for license text in the License chapter.
 \license{CC-BY-SA-4.0}
-\copyrightholder{Your Full Name}
+\copyrightholder{Kacper Kruszewski}
 \licenseyear{2026}
 
 \begin{document}
@@ -202,10 +202,23 @@
 % Add \dedication{...} and \makededication separately if desired.
 \maketitle{%
   % Abstract: typically 200--300 words. State problem, methods, and main results.
-  This is the abstract: a short, self-contained summary of the dissertation.
-  It should state the problem, methods, and main results so that a reader
-  can understand the scope without reading the full document. Replace with
-  your own abstract.
+  % This is the abstract: a short, self-contained summary of the dissertation.
+  % It should state the problem, methods, and main results so that a reader
+  % can understand the scope without reading the full document. Replace with
+  % your own abstract.
+  Dementia encompasses a variety of conditions that degrade cognitive abilities, including problem-solving and memory.
+  This, in turn, makes everyday tasks, such as operating a music player, more difficult in comparison to an able-bodied
+  person. This project aims to tackle this by simplifying operation of a music player for the patient but still allowing
+  more complex operations to occur remotely.
+
+  This project utilises SSH as its remote solution, providing Python files to interface with the device. 
+  Operations include: Switching Playlist (with shuffle functionality), Pausing and Skipping. The device also contains 
+  NFC capabilities to switch playlists.
+
+  Conducting a combination of integration testing and unit-tests, all functions and modules passed, testing various
+  input types including erroneous, valid and null. This project provides a functional prototype of a solution of an 
+  accessible media player with remote solution with plenty of room for expansion, including streamlining the setup process
+  using Access Point capabilities and including more complex commands for remote management.
 }
 
 % -----------------------------------------------------------------------------
@@ -214,13 +227,14 @@
 
 % Replace with your dedication (one or two lines); optional.
 \dedication{%
-  To my family.%
+  To my family and friends.%
 }
 
 \chapter{Acknowledgements}
 % Replace with your acknowledgements. Here you can also acknowledge any contributions from other
 % parties to the work.
-I thank my supervisors and colleagues for their support.
+I would like to thank my supervisor Stuart M Allen, ENRICH Cymru and the Cardiff University COMSC Technical Team 
+for their continued support and contributions to the project.
 
 %\chapter{Declaration}
 % Replace with your declaration (e.g. that the work is your own, and any
