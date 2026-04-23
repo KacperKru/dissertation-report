@@ -11,23 +11,32 @@
 % Assume a competent reader; avoid lengthy descriptions of standard tools.
 % =============================================================================
 
-This chapter provides the background needed to understand the project: the wider context, existing solutions or related work, and a clear problem statement (and research question(s) where applicable). Replace with your own review.
-
-\lipsum[1-2]
-
 \section{Context}\label{sec:context}
 % Wider context, domain, motivation. Optional subsections: stakeholders,
 % constraints, assumptions.
+\newthought{Around half a million people} suffer from dementia in the UK \citep{NHS2026}, a syndrome related to multitude of diseases including memory loss and degradation of mental faculties. This can cause confusion in executing everyday tasks, such as operating a music player. This resonated with the author, having previously witnessed a family member affected by the syndrome, and they decided to undertake this project to understand the diseases, and help research accessible technologies to improve a quality of life of these patients.
 
-\lipsum[3-4]
+The main stakeholders of the project are patients with dementia as the device was tailored towards their needs and what they would find easiest to use. This is typically reflected in simplification of \gls{ui} elements \citep{10.1007/978-3-642-39473-7_39}. In this instance, the \gls{ui} has been replaced with physical buttons and tangible objects. This concept was later peer reviewed by the experts over at ENRICH Cymru and the idea of simplicity was validated.
+
+Given the time constraint of 12 weeks, it was unrealistic to include all features so some constraints were put in place. An example of such was the omission of development of a graphical \gls{ui} for the remote management aspect, to save time for development of core features, necessary for the functionality of the media player. In the same vein, some assumptions about the user base were also made, these being:
+\begin{itemize}
+    \item The facility for the patients has access to a computer network.
+    \item The facility has computers that are connected to the same network.
+    \item The facility has access to a mouse, keyboard and monitor to perform the initial set-up on the device.
+\end{itemize}
+Rectifying these assumptions would be addressed if more time and resources were available, being further discussed in section \ref{sec:future}.
 
 \section{Related work}\label{sec:related}
 % Prior solutions, methods, or systems; identify gaps your work addresses.
 % Optional subsections: by theme, chronology, or type (e.g.\@ systems, methods, theory).
+Dementia-friendly media players are not a new technology. Following a similar ethos to the solution proposed, radios such as the "One Button Radio" and the "Relish Radio and Music Player" \citep{Danny2021} both do not feature a screen and only have buttons and dial controls with preset radio stations and playlists. These are examples of radios specifically designed for patients with dementia.
 
-\lipsum[5-6]
+Other devices on the market, not necessarily designed for patients with dementia, can also prove useful. The "Yoto Player 3rd Generation" is originally designed for children and is interfaced with cards that have been pre-programmed \citep{Yoto2023}. This device has then been adapted by MusicForDementia to include cards tailored to patients with dementia \citep{Utley2026}.
+
+Similarly, software-only solutions also exist. From MusicForDementia, m4dRADIO is a web application with preset buttons that tune into online radio stations that run 24/7 with the press of the button \citep{UtleyRadio2026}. This can be put onto a touch screen tablet, so the patient can tap onto the button and listen to music of their own volition.
+
+Notably, none of these solutions allow for remote management, which is where this project comes into play. Most of these alternatives require physical interaction to amend music selection, adjust volume, and pause/play music. This project aims to eliminate this necessity.
 
 \section{Problem statement}\label{sec:problem}
 % Clear statement of the problem and, if applicable, research question(s).
-
-\lipsum[7-8]
+Media Players for the cognitively impaired lack remote connectivity. This project aims to create a media player that can be interfaced remotely, using buttons on the device and through tangible artifacts, such as NFC tags.
