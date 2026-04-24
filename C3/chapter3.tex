@@ -130,8 +130,77 @@ For the sake of simplicity, the decision to include workers was also scrapped. H
 
 \section{Implementation}\label{sec:impl}
 % Realisation: key implementation choices and critical code; avoid describing every module. Optional: tools, platform, problems encountered.
+\subsection{Initial Setup}\label{subsec:setup}
+one of the main problems that was encountered during the development of this project was simply setting up the Raspberry Pi. the components that we're utilising this project are the same as those utilised in CM2211 specification \citep{Perera2025} but the components are already set up for you for the module. the main milestone here was to have the Raspberry Pi be in a workable state to being development.
 
-\lipsum[21-22]
+initially, the most up-to-date version of Raspberry Pi OS with the username "mediaplayer" was installed onto the microSD card \citep{RaspberryPiFoundation2025}. this was to ensure all modern day exploits for Raspberry Pi OS were patched and all security updates were installed. however, due to the grovepi+ being designed for an older version of Raspberry Pi OS and needing to be installed through an installation script provided by the developers Dexter Industries \citep{DexterIndustriesGrovePi2026}, the username posed an issue with installation of the libraries and necessary scripts, as can be seen in Figure \ref{fig:baduser}.
+
+\begin{figure}[!h]
+  \centering
+  \fbox{\rule{0pt}{4cm}\includegraphics[width=0.97\textwidth]{images/IncorrectUser}}
+  \caption[Incorrect Username]{Incorrect Username - require user 'pi'}\label{fig:baduser}
+\end{figure}
+The installation script is attempting to install all the packages and libraries into the 'pi' user directory but it cannot find it. This is due to the user not existing on the Raspberry Pi, so no directory associated with said user is present.
+
+This was rectified by re-imaging the Raspberry Pi with this same image but with the appropriate username. Now, the directory was present, but the installation continued to error. The packages were unable to install due to a deprecation of certain elements of the installation script, in this case \texttt{easy\_install}.
+
+\begin{figure}
+    \centering
+    \begin{verbatim}
+    Traceback (most recent call last):
+    File "/usr/lib/python3/dist-packages/setuptools/sandbox.py", 
+    line 156, in save_modules
+        yield saved
+    File "/usr/lib/python3/dist-packages/setuptools/sandbox.py", 
+    line 198, in setup_context
+        yield
+    File "/usr/lib/python3/dist-packages/setuptools/sandbox.py", 
+    line 259, in run_setup
+        _execfile(setup_script, ns)
+    File "/usr/lib/python3/dist-packages/setuptools/sandbox.py", 
+    line 46, in _execfile
+        exec(code, globals, locals)
+    File "/tmp/easy_install-ex5g9mab/smbus-cffi-0.5.1/setup.py", 
+    line 17, in <module>
+        Permission is hereby granted, free of charge, to any
+        person obtaining a copy
+    \end{verbatim}
+    \caption[Traceback - easy\_install]{Traceback Snippet - easy\_install identification}\label{fig:easyinstall}
+\end{figure}
+Figure \ref{fig:easyinstall} shows the directory "/tmp/easy\_install-ex5g9mab", illustrating that the deprecated component was called.
+
+Some of the package did seem to install however, as can be seen when attempting to run a Python script calling the "grovepi" library, as seen in Figure \ref{fig:missmod}.
+\begin{fullwidthfigure}[!h]
+    \centering
+    \fbox{\rule{0pt}{1.7cm}\includegraphics[width=1\linewidth]{images/MissingModule}}
+    \caption[Missing Module]{Missing Module - installation not complete}\label{fig:missmod}
+\end{fullwidthfigure}
+
+Wanting to not deviate from the installation script provided by Dexter Industries, a slightly older Raspberry Pi image was flashed instead, as suggested by user \textbf{cyclicalobsessive} on the Dexter Industry forums \citep{cyclicalobsessive2024}. The version the user suggested was \texttt{2023-05-03-raspios-buster}, which posed its own issues, as seen in Figure \ref{fig:eolurl}
+\begin{fullwidthfigure}[!h]
+  \centering
+  \fbox{\rule{0pt}{4cm}\includegraphics[width=0.97\linewidth]{images/EOLURL}}
+  \caption[End of Life URL]{End of Life URL - package installation incomplete}\label{fig:eolurl}
+\end{fullwidthfigure}
+
+As this is a legacy image, the URLs used for \texttt{apt-get install} were moved over to an archive location, which needed to be reflected in \texttt{/etc/apt/source.list} \citep{rpdom2026}, as seen in Figure \ref{fig:sourceslist}. On top of this, additional public keys had to be handed to be able to pull from these sources \citep{Jean2026}. Once these have been amended, the library was installed but did not interface with the GrovePi+ shield.
+
+\begin{fullwidthfigure}[!h]
+  \centering
+  \fbox{\rule{0pt}{3cm}\includegraphics[width=0.97\linewidth]{images/sourceslist}}
+  \caption[Amended source.list]{Amended source.list}\label{fig:sourceslist}
+\end{fullwidthfigure}
+
+\subsection{Button Interaction}\label{subsec:btnint}
+
+\subsection{Playlist Functionality}\label{subsec:playlist}
+
+\subsection{Terminal Interaction}\label{subsec:terminal}
+
+\subsection{Start-up Behaviour}\label{subsec:startup}
+
+\subsection{NFC Reading and Command Execution}\label{subsec:NFC}
+
 
 \section{Summary}\label{sec:summary}
 % Optional: short summary of the methodology. Omit if the chapter is already concise.
