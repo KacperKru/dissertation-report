@@ -19,24 +19,112 @@
 %                   Literature and evidence; Summary.
 % =============================================================================
 
-This chapter describes how the problem was addressed. Choose sections that fit your project type; omit or merge as needed. Replace with enough detail for reproduction.
-
-\lipsum[9-10]
+\newthought{As the proposed solution} of this project is not research-based, appropriate system design took place to keep structure during the development process and provide quantifiable milestones, aiding in discussion within weekly meetings with the Author's supervisor.
 
 \section{Specification}\label{sec:spec}
 % System design: requirements (what the system must do; optional subsections: functional, non-functional). Research: problem and what is required of a solution.
+As discussed in section \ref{sec:related}, it can be observed that each existing device on the market only utilises one input method, whereas the proposed solution needs to listen out for up to three. These methods of input being: terminal commands, physical button interaction and tangible artefact interaction through \gls{nfc} technology.
 
-\lipsum[13-14]
+\subsection{Functional requirements}\label{subsec:funcreq}
+To ensure consistency between these modes of input and outlining clear deliverables, the following functional requirements were fufilled:
+\begin{itemize}
+    \item Pressing the play/pause button \textbf{must} play and pause the current song being played.
+    \item Pressing the skip button \textbf{must} skip the current song being played to the next song in the playlist.
+    \item The play/pause button \textbf{must} be illuminated on start-up to denote the identity of the function of the button.
+    \item The device \textbf{must} be able to be interfaced with remotely via SSH.
+    \item Sending commands over an SSH terminal \textbf{must} perform the action that it has been assigned to do so.
+    \item Presenting an \gls{nfc} tag to the \gls{nfc} antenna \textbf{must} perform a playlist switch to the playlist present in the payload of the tag.
+    \item The device \textbf{must} connect to a predefined Bluetooth Speaker on start-up.
+    \item The device \textbf{must} execute the main script on start-up, avoiding unnecessary remote management. 
+\end{itemize}
+\subsection{Non-functional requirements}\label{subsec:nonfuncreq}
+In a similar vein, the proposed solution needs to function in an efficient and safe manner. It is unreasonable to expect the end users to have to wait extended periods of time for actions to be performed, and potentially compromise their network with the proposed solution as the attacker's entry point. Therefore, the following non-functional requirements were also fulfilled:
+\begin{itemize}
+    \item Commands over the SSH terminal should take \textbf{no longer than} 5 seconds to execute.
+    \item Bluetooth should connect to a predetermined Bluetooth speaker in \textbf{no more than} 10 attempts.
+    \item Users without authorisation should \textbf{not} be able to connect to the device over SSH.
+    \item The device needs to be \textbf{intuitive} and easy to use.
+    \item Start-up of the device should take \textbf{no longer than} 2 minutes.
+    \item The \gls{nfc} antenna on the device should read a presented \gls{nfc} tag successfully in \textbf{no more than} 10 attempts.
+    \item The device should be \textbf{scalable}, and not suffer any performance drops as the playlists increase.
+    \item The device should \textbf{reboot} after a power cut and return to a \textbf{workable state} once power is restored.
+\end{itemize}
 
 \section{AI and machine learning models}\label{sec:aiml}
 % AI/ML: model choice, training and validation, evaluation methodology. Omit otherwise.
+Although not instrumental to the design, AI chatbots powered by \gls{llm}s were utilised throughout the development of this project. These \gls{llm}s were used in a supportive capacity, largely through troubleshooting code or brainstorming ideas on how to execute certain features, in particular the utilisation of Python Sockets to execute terminal commands. Each piece of code produced by these models were thoroughly examined and rigorously tested to ensure it was efficient, no vulnerabilities were present and to further the understanding of the author as to what the code intends to do. The code was then rewritten and adapted to a particular use case.
 
-\lipsum[17-18]
+The \gls{llm}s utilised for this project are the following:
+\begin{itemize}
+    \item Claude by Anthropic \citep{Anthropic2026}.
+    \item Gemini by Google \citep{GoogleAI2026}.
+    \item Microsoft Copilot by Microsoft AI and OpenAI \citep{MicrosoftAI2026}.
+\end{itemize}
 
 \section{System design}\label{sec:design}
 % System design: architecture, data flow, behaviour (UML, ER, state charts). Use diagrams. Research: use ``Approach and solution'' for your proposed solution(s).
+The system has been designed around three main hardware components:
+\begin{enumerate}
+    \item \texttt{Raspberry Pi 4 Model B}
+    \item \texttt{Arduino Expansion Shield} acting as an Arduino Leonardo board
+    \item \texttt{Bluetooth Speaker} in this case, a Google Nest Mini.
+\end{enumerate}
+However, the Raspberry Pi and Arduino Board are connected unconventionally, due to a GrovePi+ being already attached to the header pins of the Raspberry Pi. They are instead connected through the USB ports on the Raspberry Pi itself. The Arduino is necessary here to connect the \gls{nfc} Reader Module, as its Base Shield possesses a UART connection, that the GrovePi+ does not have access to. A detailed diagram of how these components are connected with all accompanying sensors, buttons and speakers can be seen in Figure \ref{fig:sysoverH}.
 
-\lipsum[19-20]
+\begin{figure}[!h]
+  \centering
+  \fbox{\rule{0pt}{4cm}\includegraphics[width=0.97\textwidth]{images/SystemOverviewHardware}}
+  \caption[System Overview - Hardware]{System Overview - Hardware}\label{fig:sysoverH}
+\end{figure}
+
+The software this project consists of can be separated into 3 main scripts:
+\begin{enumerate}
+    \item \texttt{client.py}, used for sending commands to the main program.
+    \item \texttt{server.py}, hosing the core functionality of the media player and receiving commands from both the Arduino and client.py.
+    \item \texttt{reading\_nfc.ino}, used for reading the data off \gls{nfc} tags and sending them into the serial port.
+\end{enumerate}
+An additional script for the Arduino also exists called "\texttt{writing\_nfc.ino}" but it is only necessary when creating new \gls{nfc} tags for new or existing playlists. A detailed diagram of how these interact with each other can be seen in Figure \ref{fig:sysoverS}.
+
+\begin{figure}[!h]
+  \centering
+  \fbox{\rule{0pt}{4cm}\includegraphics[width=0.97\textwidth]{images/SystemOverviewSoftware}}
+  \caption[System Overview - Software]{System Overview - Software}\label{fig:sysoverS}
+\end{figure}
+
+The Python scrips only utlises 2 external libraries to execute all of its functions, the rest being included in a Python 3 install. The list of the libraries and what they were for is as follows:
+\begin{itemize}
+    \item grovepi, one of the external libraries that allows for direct interaction with the pins on the GrovePi+ shield that has the buttons connected to it.
+    \item python-vlc, the other external library that allows for the music to be played through Raspbian's default media player VLC. Controls for the songs are managed through this library.
+    \item time, native Python library that introduced delays in the scripts, specifically to allow for Bluetooth connection to occur without disruption.
+    \item threading, native Python library that allowed for multiple functions (in this case, reading \gls{nfc} tags and receiving terminal commands through a socket) to run concurrently.
+    \item socket, native Python library that utilises BSD Socket API to communicate between \texttt{server.py} and \texttt{client.py}.
+    \item subprocess, native Python library that allowed for execution of terminal commands (in this case, bluetoothctl).
+    \item os, native Python library that read all of the song files in a given directory to construct a playlist.
+    \item serial, native Python library that facilitated reading from the serial port. 
+    \item re, native Python library that could enact regular expressions on the payloads of the \gls{nfc} tags.
+    \item random, native Python library that facilitated the "shuffle" functionality in the media player.
+\end{itemize}
+
+The C++ sketches for the Arduino utilised a library provided by Seeed Studios to interface with the \gls{nfc} reader, using \gls{ndef} technology \citep{SeeedStudios2020}.
+
+A full list of the hardware that was used in this project is the following:
+\begin{itemize}
+    \item \texttt{Raspberry Pi 4 Model B}
+    \item \texttt{MicroSD Card 32Gb}
+    \item \texttt{GrovePi+ Shield}
+    \item \texttt{2 Grove LED Buttons}
+    \item \texttt{Arduino Expansion Shield for Raspberry Pi B+ (V2.0)}
+    \item \texttt{Grove Base Shield for Arduino}
+    \item \texttt{Grove \gls{nfc} Reader}
+    \item \texttt{5 \gls{nfc} tags}
+    \item \texttt{Google Nest Mini}
+    \item \texttt{Laptop} capable of SSH
+\end{itemize}
+
+
+\section{Ethical considerations}\label{sec:ethics}
+
+\lipsum[21-22]
 
 \section{Implementation}\label{sec:impl}
 % Realisation: key implementation choices and critical code; avoid describing every module. Optional: tools, platform, problems encountered.

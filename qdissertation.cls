@@ -1015,6 +1015,8 @@
 
 \newcommand{\qdissertation@title}{}
 \newcommand{\qdissertation@author}{}
+\newcommand{\logo}[1]{\def\qdissertation@logo{#1}}
+\let\qdissertation@logo\@empty
 \newcommand{\qdissertation@degree}{}
 \newcommand{\qdissertation@university}{Your University}
 \newcommand{\qdissertation@date}{\today}
@@ -1102,6 +1104,10 @@
       {\Huge\bfseries \qdissertation@title\par}
       \vfill
       {\LARGE \qdissertation@author\par}
+      \vfill
+      \ifx\qdissertation@logo\@empty\else
+      \includegraphics[width=6cm]{\qdissertation@logo}\\[2ex] % Includes logo of uni
+      \fi
       \vfill\vfill\vfill
       % Only show the degree sentence if a non-empty degree has been set
       \ifstrempty{\qdissertation@degree}{}{%
@@ -1235,7 +1241,7 @@
   \ifqdissertation@cite@harvard
     \bibliographystyle{agsm}%
   \else
-    \bibliographystyle{plainnat}%
+    \bibliographystyle{unsrtnat}%
   \fi
   \ifqdissertation@license
     \qdissertation@resolvelicense
