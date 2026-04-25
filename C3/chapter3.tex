@@ -31,8 +31,8 @@ To ensure consistency between these modes of input and outlining clear deliverab
     \item Pressing the play/pause button \textbf{must} play and pause the current song being played.
     \item Pressing the skip button \textbf{must} skip the current song being played to the next song in the playlist.
     \item The play/pause button \textbf{must} be illuminated on start-up to denote the identity of the function of the button.
-    \item The device \textbf{must} be able to be interfaced with remotely via SSH.
-    \item Sending commands over an SSH terminal \textbf{must} perform the action that it has been assigned to do so.
+    \item The device \textbf{must} be able to be interfaced with remotely via \gls{ssh}.
+    \item Sending commands over an \gls{ssh} terminal \textbf{must} perform the action that it has been assigned to do so.
     \item Presenting an \gls{nfc} tag to the \gls{nfc} antenna \textbf{must} perform a playlist switch to the playlist present in the payload of the tag.
     \item The device \textbf{must} connect to a predefined Bluetooth Speaker on start-up.
     \item The device \textbf{must} execute the main script on start-up, avoiding unnecessary remote management. 
@@ -40,9 +40,9 @@ To ensure consistency between these modes of input and outlining clear deliverab
 \subsection{Non-functional requirements}\label{subsec:nonfuncreq}
 In a similar vein, the proposed solution needs to function in an efficient and safe manner. It is unreasonable to expect the end users to have to wait extended periods of time for actions to be performed, and potentially compromise their network with the proposed solution as the attacker's entry point. Therefore, the following non-functional requirements were also fulfilled:
 \begin{itemize}
-    \item Commands over the SSH terminal should take \textbf{no longer than} 5 seconds to execute.
+    \item Commands over the \gls{ssh} terminal should take \textbf{no longer than} 5 seconds to execute.
     \item Bluetooth should connect to a predetermined Bluetooth speaker in \textbf{no more than} 10 attempts.
-    \item Users without authorisation should \textbf{not} be able to connect to the device over SSH.
+    \item Users without authorisation should \textbf{not} be able to connect to the device over \gls{ssh}.
     \item The device needs to be \textbf{intuitive} and easy to use.
     \item Start-up of the device should take \textbf{no longer than} 2 minutes.
     \item The \gls{nfc} antenna on the device should read a presented \gls{nfc} tag successfully in \textbf{no more than} 10 attempts.
@@ -118,7 +118,7 @@ A full list of the hardware that was used in this project is the following:
     \item \texttt{Grove \gls{nfc} Reader}
     \item \texttt{5 \gls{nfc} tags}
     \item \texttt{Google Nest Mini}
-    \item \texttt{Laptop} capable of SSH
+    \item \texttt{Laptop} capable of \gls{ssh}
 \end{itemize}
 
 \section{Ethical considerations}\label{sec:ethics}
@@ -364,7 +364,112 @@ To adjust for scalability and the implementation of more than one playlist, the 
 
 The proposed solution can now play songs based off a pre-determined order in a folder, or play it shuffled.
 \subsection{Terminal Interaction}\label{subsec:terminal}
+Remote Management was one of the key aims for this project and without the presence of a GUI to facilite this requirement, terminal commands were introduced. The "remote" aspect came from connecting to the device using \gls{ssh} and interfacing with the terminal provided from the connection. Should the user opt for a desktop environment, \gls{vnc} was also available, with the user having to open a terminal window through the desktop environment.
 
+This was originally setup through the use of a \texttt{While True} loop executing in tandem with the button recognition commands, using the \texttt{threading} library, as seen in Algorithm \ref{alg:threadingEG}. The button recognition was moved to a function named "background" to enable threading to occur, whereas the code within the function is the same as Algorithm \ref{alg:mappedBtnPress}.
+
+Once \texttt{main.py} was executed, it awaited inputs and utilised an "If" statement to decide on what to do, as seen in Algorithm \ref{alg:IFstatement}. The author was to make use of a Structural Pattern Match in the form of a "match case" statement, but this feature wasn't implemented till Python 3.10 (one version ahead of the one present on the Raspberry Pi) \citep{PythonSoftwareFoundation2023}.
+
+\begin{algorithm}[!h]
+  \caption{Running Terminal Commands using \texttt{threading}}
+  \label{alg:threadingEG}
+  \begin{lstlisting}[language=Python]
+    threading1 = threading.Thread(target=background)
+    threading1.daemon = True
+    threading1.start()
+  \end{lstlisting}
+\end{algorithm}
+
+\begin{algorithm}[!h]
+  \caption{If Statements for Terminal Commands}
+  \label{alg:IFstatement}
+  \begin{lstlisting}[language=Python]
+    while True:
+        command_input = input("Enter a command: ")
+     
+        if command_input.lower() == "p":
+            media_player.pause()
+        elif command_input.lower() == "s":
+            media_player.next()
+        elif command_input.lower() == "switch":
+            playlistChange = input("What's the name of the playlist?: ")
+            try:
+                media_player.stop()
+                loadplaylist(playlistChange)
+                print("Switching Playlist...")
+                time.sleep(0.5)
+                media_player.play()
+            except FileNotFoundError:
+                print("Playlist doesn't exist")
+                media_player.play()
+        elif command_input.lower() == "help":
+            print('--------------\nhelp: displays commands available\ns: skips current song\np: pauses current song\nexit: closes music program\n--------------')
+        elif command_input.lower() == "exit":
+            print("\nExiting")
+            grovepi.digitalWrite(buttonP_pin -1, 0)
+            break 
+        else:
+            print('Invalid command, try again. To see list of commands, type "help"')
+  \end{lstlisting}
+\end{algorithm}
+
+The commands the user has at their disposal are:
+\begin{itemize}
+    \item play/pause, represented as "p"
+    \item skip, represented as "s"
+    \item switch, allowing the user to switch to the playlist passed as an argument
+    \item help, proving a menu on what each command does 
+\end{itemize}
+
+This initial approach however, wasn't viable the moment the main.py was executed at start time, covered fully in section \ref{subsec:startup}. No terminal was available when the Python file was executed as part of a service so alternative methods of passing commands had to be explored. Anthropic's \gls{llm} Claude was able to assist here, suggesting the utilisation of sockets \citep{AnthropicMarch2026}. Instead of an open terminal running the terminal through \texttt{main.py}, a secondary smaller script \texttt{client.py} would send a message for \texttt{main.py} (now being renamed \texttt{client.py}) to then decode and execute the command the message contained. The socket receiver now also needs to run in tandem, so it becamse the 2\textsuperscript{nd} thread and is executed using the \texttt{threading} module.
+
+Both \texttt{client.py} and \texttt{server.py} use the \texttt{socket} module to send and receive these messages. \texttt{client.py} can be seen in Algorithm \ref{alg:clientpy} and \texttt{server.py}'s socket receiver function can be seen as a snippet in Algorithm \ref{alg:socketReceiverSnip}. One limitation of \texttt{client.py} is the ability to only run one command per Python script execution; sending more caused the tunnel to collapse and would need to be restarted regardless.
+
+\begin{algorithm}[!h]
+  \caption{client.py - Python}
+  \label{alg:clientpy}
+  \begin{lstlisting}[language=Python]
+    import socket
+    import sys
+
+    def send_command(command):
+        if command == '': # Handle Null Values
+            return "Invalid command\n"
+        
+        socket_path = '/tmp/musicplayer.sock'
+        client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) # Using a UNIX socket
+        client.connect(socket_path)
+        
+        client.send(command.encode())
+        response = client.recv(1024).decode() # Receives a maximum of 1024 bytes
+        client.close()
+        return response
+
+    if __name__ == '__main__': # Prevent running as script
+        command = ' '.join(sys.argv[1:])
+        response = send_command(command)
+        print(response)
+  \end{lstlisting}
+\end{algorithm}
+
+\begin{algorithm}[!h]
+  \caption{terminal\_server() Snippet - Python}
+  \label{alg:socketReceiverSnip}
+  \begin{lstlisting}[language=Python]
+    def terminal_server():
+        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        socket_path = '/tmp/musicplayer.sock'
+        if os.path.exists(socket_path):
+            os.remove(socket_path)
+        server.bind(socket_path)
+        server.listen(1)
+        while True:
+            conn, _ = server.accept()
+            data = conn.recv(1024).decode().strip()
+  \end{lstlisting}
+\end{algorithm}
+
+The device can now receive terminal commands through any \gls{ssh} terminal.
 \subsection{Start-up Behaviour}\label{subsec:startup}
 
 \subsection{NFC Reading and Command Execution}\label{subsec:NFC}
