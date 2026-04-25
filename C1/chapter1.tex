@@ -59,22 +59,8 @@ The rest of this dissertation is organised as follows.
   \item \textbf{Appendix~\ref{app:supp}} and \textbf{Appendix~\ref{app:results}}: supplementary material and additional results.
 \end{itemize}
 
-Algorithms (algorithm, algpseudocode) appear in the List of Algorithms (Algorithm~\ref{alg:demo}). Use \texttt{[t]} or \texttt{[!t]} for top placement like figures/tables. For code snippets use verbatim; for wide tables or figures use \texttt{\string
+Algorithms (algorithm, algpseudocode) appear in the List of Algorithms. Use \texttt{[t]} or \texttt{[!t]} for top placement like figures/tables. For code snippets use verbatim; for wide tables or figures use \texttt{\string
 \begin{sidewaystable}} or \texttt{\string
   \begin{sidewaysfigure}} (rotating).\footnote{Footnote example. Captions and footnotes are set at least 11\,pt by the class.} Placeholder prose in other chapters uses \texttt{\string\lipsum[n]}. Example: \lipsum[1]
 
     Use \texttt{\string\afterpage\{\string\clearpage\}} (afterpage) when you need to clear after the current page.
-
-    \begin{algorithm}[t]
-      \caption{Example algorithm (algpseudocode). Alternative: algorithmic for traditional layout.}
-      \label{alg:demo}
-      \begin{algorithmic}[1]
-        \State \textbf{Input:} data $x$
-        \State \textbf{Output:} result $y$
-        \State $y \gets 0$
-        \For{$i = 1$ \textbf{to} $n$}
-        \State $y \gets y + x_i$
-        \EndFor
-        \State \Return $y$
-      \end{algorithmic}
-    \end{algorithm}

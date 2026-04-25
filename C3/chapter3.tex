@@ -146,7 +146,7 @@ This was rectified by re-imaging the Raspberry Pi with this same image but with 
 
 \begin{figure}
     \centering
-    \begin{verbatim}
+    \begin{lstlisting}[language=Python]
     Traceback (most recent call last):
     File "/usr/lib/python3/dist-packages/setuptools/sandbox.py", 
     line 156, in save_modules
@@ -164,7 +164,7 @@ This was rectified by re-imaging the Raspberry Pi with this same image but with 
     line 17, in <module>
         Permission is hereby granted, free of charge, to any
         person obtaining a copy
-    \end{verbatim}
+    \end{lstlisting}
     \caption[Traceback - easy\_install]{Traceback Snippet - easy\_install identification}\label{fig:easyinstall}
 \end{figure}
 Figure \ref{fig:easyinstall} shows the directory "/tmp/easy\_install-ex5g9mab", illustrating that the deprecated component was called.
@@ -182,7 +182,7 @@ Wanting to not deviate from the installation script provided by Dexter Industrie
   \fbox{\rule{0pt}{4cm}\includegraphics[width=0.97\linewidth]{images/EOLURL}}
   \caption[End of Life URL]{End of Life URL - package installation incomplete}\label{fig:eolurl}
 \end{fullwidthfigure}
-
+\newpage
 As this is a legacy image, the URLs used for \texttt{apt-get install} were moved over to an archive location, which needed to be reflected in \texttt{/etc/apt/source.list} \citep{rpdom2026}, as seen in Figure \ref{fig:sourceslist}. On top of this, additional public keys had to be handed to be able to pull from these sources \citep{Jean2026}. Once these have been amended, the library was installed but did not interface with the GrovePi+ shield.
 
 \begin{fullwidthfigure}[!h]
@@ -218,9 +218,151 @@ Further research highlighted that the most recent Raspberry Pi image was incompa
 The initial setup was now complete and development of the solution could commence.
 
 \subsection{Button Interaction}\label{subsec:btnint}
+The proposed solution's main form of interaction is that of button presses on the Raspberry Pi. Once the GrovePi module was installed, development commenced on recognising the button presses.
 
-\subsection{Playlist Functionality}\label{subsec:playlist}
+An issue arose when trying to address the button presses. The first LED button was connected to the D2 port on the GrovePi shield and the other was connected to the D7 port. These ports were chosen as they were directly opposite each other on the shield, making it easier to distinguish between them both. Algorithm \ref{alg:badBtnTest} was used to test these ports.
+\begin{algorithm}[!h]
+    \caption{Unsuccessful Button Port Test - Python}
+    \label{alg:badBtnTest}
+    \begin{lstlisting}[language=Python]
+    import time
+    import grovepi
 
+    buttonP_pin = 2
+    buttonS_pin = 7
+
+    grovepi.pinMode(buttonP_pin, "INPUT")
+    grovepi.pinMode(buttonS_pin, "INPUT")
+
+    print("Ready!")
+
+    buttonP_was_pressed = False
+    buttonS_was_pressed = False
+
+    try:
+        while True:
+            buttonP_state = grovepi.digitalRead(buttonP_pin)
+            buttonS_state = grovepi.digitalRead(buttonS_pin)
+            if buttonP_state == 0 and not buttonP_was_pressed:
+                print("Button Play pressed!")
+                buttonP_was_pressed = True
+
+            elif buttonP_state == 1 and buttonP_was_pressed:
+                print("Button Play released!")
+                buttonP_was_pressed = False
+                
+            if buttonS_state == 0 and not buttonS_was_pressed:
+                print("Button Skip pressed!")
+                buttonS_was_pressed = True
+
+            elif buttonS_state == 1 and buttonS_was_pressed:
+                print("Button Skip released!")
+                buttonS_was_pressed = False
+
+            time.sleep(0.05)
+
+    except KeyboardInterrupt:
+        print("\nExiting.")
+    \end{lstlisting}
+\end{algorithm}
+\newpage
+Algorithm \ref{alg:badBtnTest} was not printing any statements on button presses and the logic seemed sound. testing different port numbers, \texttt{buttonP\_pin} and \texttt{buttonS\_pin} were routinely swapped out to their corresponding ports, until they were returned to the ports they were originally connected to (2 and 7). The algorithm's pin values were not changed as an oversight but output was being registered when the \texttt{buttonP} was connected to D2 but and the value of \texttt{buttonP\_pin} was 3. An \textbf{offset of 1} was identified in the port numbering.
+
+The amended line can be seen in Algorithm \ref{alg:goodBtnTest}.
+\begin{algorithm}[!h]
+    \caption{Successful Button Port Test Ammendment - Python}
+    \label{alg:goodBtnTest}
+    \begin{lstlisting}[language=Python]
+        buttonP_pin = 3 # For some odd reason, the port number + 1 recognises the appropriate button
+        buttonS_pin = 8
+    \end{lstlisting}
+\end{algorithm}
+\clearpage
+\subsection{Music Player Functionality}\label{subsec:playlist}
+Once the button presses were being recognised, music player functionality could now be implemented. On the image used on the proposed solution, the default media player was VLC. 
+
+The python-vlc package was then installed to interface with it and have VLC act as the media player for the proposed solution, due to its universality of outputting various media files, open-source nature and convenience provided by not installing an alternative. Adaptations were made to the main script to map python-vlc's functions to the appropriate button presses, present in Algorithms \ref{alg:initVLC} and \ref{alg:mappedBtnPress}.
+
+\begin{algorithm}[!h]
+  \caption{Initialisation of VLC Playlist - Python}
+  \label{alg:initVLC}
+  \begin{lstlisting}[language=Python]
+    media_player = vlc.MediaListPlayer() # Intialises Playlist
+    instance = vlc.Instance() # Creates VLC instance
+
+    playlist = instance.media_list_new()
+
+    for sound in os.listdir("AudioTracks"): # Creates a Playlist for all audio tracks in /AudioTracks/
+        media = instance.media_new(f'AudioTracks/{sound}')
+        playlist.add_media(media)
+
+    media_player.set_media_list(playlist)
+  \end{lstlisting}
+\end{algorithm}
+
+\begin{algorithm}[!h]
+  \caption{Mapped Button Presses - Python}
+  \label{alg:mappedBtnPress}
+  \begin{lstlisting}[language=Python]
+    buttonS_was_pressed = False # Ensures can be pressed only once
+    buttonP_was_pressed = False
+    while True:
+        buttonP_state = grovepi.digitalRead(buttonP_pin)
+        buttonS_state = grovepi.digitalRead(buttonS_pin)
+        
+        if buttonP_state == 0 and not buttonP_was_pressed:
+            media_player.pause()
+            buttonP_was_pressed = True
+            
+        if buttonS_state == 0 and not buttonS_was_pressed:
+            media_player.next()
+            buttonS_was_pressed = True
+            
+        if buttonS_state == 1 and buttonS_was_pressed:
+            buttonS_was_pressed = False  
+        elif buttonP_state == 1 and buttonP_was_pressed:
+            buttonP_was_pressed = False
+
+        time.sleep(0.05)
+  \end{lstlisting}
+\end{algorithm}
+\newpage
+The pause/play button and skip button are now functional and can be used to interface with the proposed solution.
+\clearpage
+To adjust for scalability and the implementation of more than one playlist, the function to load the playlist was moved into a Python function. This was done for modularity and avoiding repeating code when a playlist is to be switched. It takes two arguments, the playlist name and if it is to be shuffled. If shuffle is not passed, it defaults to False. The code snippet can be seen in Algorithm \ref{alg:loadplaylist}.
+\begin{algorithm}[!t]
+  \caption{load\_playlist() - Python}
+  \label{alg:loadplaylist}
+  \begin{lstlisting}[language=Python]
+    def loadplaylist(playlistName, shuffle="false"):
+        if playlistName == '': # Handling null inputs
+            return False
+        
+        try:
+            os.listdir(f'AudioTracks/{playlistName}')
+        except FileNotFoundError: # If playlist folder doesn't exist
+            return False
+        
+        playlist = instance.media_list_new()
+        
+        if shuffle.lower() == "true":
+            songs = os.listdir(f'AudioTracks/{playlistName}')
+            random.shuffle(songs)
+            for sound in songs:
+                print(sound)
+                media = instance.media_new(f'AudioTracks/{playlistName}/{sound}')
+                playlist.add_media(media)
+        else:
+            for sound in sorted(os.listdir(f'AudioTracks/{playlistName}')): # Sorts the playlist in alphabetical order
+                print(sound)
+                media = instance.media_new(f'AudioTracks/{playlistName}/{sound}')
+                playlist.add_media(media)
+        media_player.set_media_list(playlist)
+        return True
+  \end{lstlisting}
+\end{algorithm}
+
+The proposed solution can now play songs based off a pre-determined order in a folder, or play it shuffled.
 \subsection{Terminal Interaction}\label{subsec:terminal}
 
 \subsection{Start-up Behaviour}\label{subsec:startup}
@@ -230,5 +372,3 @@ The initial setup was now complete and development of the solution could commenc
 
 \section{Summary}\label{sec:summary}
 % Optional: short summary of the methodology. Omit if the chapter is already concise.
-
-\lipsum[23-24]
