@@ -131,9 +131,9 @@ For the sake of simplicity, the decision to include workers was also scrapped. H
 \section{Implementation}\label{sec:impl}
 % Realisation: key implementation choices and critical code; avoid describing every module. Optional: tools, platform, problems encountered.
 \subsection{Initial Setup}\label{subsec:setup}
-one of the main problems that was encountered during the development of this project was simply setting up the Raspberry Pi. the components that we're utilising this project are the same as those utilised in CM2211 specification \citep{Perera2025} but the components are already set up for you for the module. the main milestone here was to have the Raspberry Pi be in a workable state to being development.
+One of the main problems that was encountered during the development of this project was simply setting up the Raspberry Pi. The components that we're utilising this project are the same as those utilised in CM2211 specification \citep{Perera2025} but the components are already set up for you for the module. The main milestone here was to have the Raspberry Pi be in a workable state to being development.
 
-initially, the most up-to-date version of Raspberry Pi OS with the username "mediaplayer" was installed onto the microSD card \citep{RaspberryPiFoundation2025}. this was to ensure all modern day exploits for Raspberry Pi OS were patched and all security updates were installed. however, due to the grovepi+ being designed for an older version of Raspberry Pi OS and needing to be installed through an installation script provided by the developers Dexter Industries \citep{DexterIndustriesGrovePi2026}, the username posed an issue with installation of the libraries and necessary scripts, as can be seen in Figure \ref{fig:baduser}.
+Initially, the most up-to-date version of Raspberry Pi OS with the username "kacper" was installed onto the microSD card \citep{RaspberryPiFoundation2025}. This was to ensure all modern day exploits for Raspberry Pi OS were patched and all security updates were installed. However, due to the GrovePi+ being designed for an older version of Raspberry Pi OS and needing to be installed through an installation script provided by the developers Dexter Industries \citep{DexterIndustriesGrovePi2026}, the username posed an issue with installation of the libraries and necessary scripts, as can be seen in Figure \ref{fig:baduser}.
 
 \begin{figure}[!h]
   \centering
@@ -190,6 +190,32 @@ As this is a legacy image, the URLs used for \texttt{apt-get install} were moved
   \fbox{\rule{0pt}{3cm}\includegraphics[width=0.97\linewidth]{images/sourceslist}}
   \caption[Amended source.list]{Amended source.list}\label{fig:sourceslist}
 \end{fullwidthfigure}
+
+The GrovePi+ not being able to interface with the python scripts occurred due the packages and modules being installed on an earlier version of Python (all were installed onto Python 2.7 instead, as seen in Figures \ref{fig:badPyver1} and \ref{fig:badPyver2}).
+
+\begin{fullwidthfigure}[!h]
+  \centering
+  \fbox{\rule{0pt}{1.3cm}\includegraphics[width=0.97\linewidth]{images/py2.7packages.png}}
+  \caption[Incorrect Python Version 1]{Incorrect Python Version - installed on 2.7}\label{fig:badPyver1}
+\end{fullwidthfigure}
+
+\begin{fullwidthfigure}[!h]
+  \centering
+  \fbox{\rule{0pt}{3cm}\includegraphics[width=0.97\linewidth]{images/py3.7packages.png}}
+  \caption[Incorrect Python Version 2]{Incorrect Python Version - empty 3.7 directory}\label{fig:badPyver2}
+\end{fullwidthfigure}
+
+The pre-configured image provided by Dexter Industries for the GoPiGo family of robots was also considered \citep{DexterIndustriesGoPiGo2026} but after examining the image, it was not suitable for the use case, being bloated with unnecessary applications and local web server hosting that would waste system resources when running idle.
+
+Further research highlighted that the most recent Raspberry Pi image was incompatible due to a newer kernel level driver, which is incompatible with the flashing process of the GrovePi and with the low-level tools for \gls{i2c} communication (as the latter relied on older kernel behaviour) \citep{IOTGarage2025}. This led to the decision of following the guide provided by IOT Garage and the installation of the \texttt{2024-10-22-raspios-bullseye} image, which is the current image on the proposed solution. The only deviation from this guide is the copying of both the \texttt{di\_i2c} and \texttt{di\_mutex} modules (they both depend on each other) into the Python 3.9 directory, as seen in Figure \ref{fig:workinggpi}. The GrovePi library is now operable and can interface with the GrovePi+ shield.
+
+\begin{fullwidthfigure}[!h]
+  \centering
+  \fbox{\rule{0pt}{2cm}\includegraphics[width=0.97\linewidth]{images/workinggpi}}
+  \caption[Movement of Modules and Test grovepi call]{Movement of Modules and Test grovepi call}\label{fig:workinggpi}
+\end{fullwidthfigure}
+
+The initial setup was now complete and development of the solution could commence.
 
 \subsection{Button Interaction}\label{subsec:btnint}
 
