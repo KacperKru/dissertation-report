@@ -457,21 +457,79 @@ Both \texttt{client.py} and \texttt{server.py} use the \texttt{socket} module to
   \label{alg:socketReceiverSnip}
   \begin{lstlisting}[language=Python]
     def terminal_server():
-        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) # Transmitted locally
         socket_path = '/tmp/musicplayer.sock'
         if os.path.exists(socket_path):
-            os.remove(socket_path)
+            os.remove(socket_path) # Deletes previous path if not cleaned up after last command 
         server.bind(socket_path)
-        server.listen(1)
+        server.listen(1) # Listens out to only one command  
         while True:
             conn, _ = server.accept()
-            data = conn.recv(1024).decode().strip()
+            data = conn.recv(1024).decode().strip() # Buffer of 1024 bytes as commands are small
   \end{lstlisting}
 \end{algorithm}
 
 The device can now receive terminal commands through any \gls{ssh} terminal.
 \subsection{Start-up Behaviour}\label{subsec:startup}
+The device should not need remote interaction on start-up. if this was to be omitted, this would overcomplicate the device and make it inferior to devices already on the market, where simplicity thrives. Remote Management should be a add on, rather than a necessary tool. The device therefore needed to start playing music the moment it turns on, or reboots after a power cut. this was done through the use of \texttt{systemd} on the Raspberry Pi, where a service was created that would run \texttt{server.py} the moment a user has logged on the Pi, which should happen automatically as the Raspberry Pi has been configured to sign in automatically. Algorithm \ref{alg:playerServ} shows how \texttt{mediaplayer.service} file utilised in \texttt{systemd}. This service needs to then be moved to \texttt{/etc/systemd/system/} activated using \texttt{systemctl start mediaplayer.service} and will be executed the next time the Raspberry Pi reboots. 
+\begin{algorithm}[!h]
+  \caption{mediaplayer.service}
+  \label{alg:playerServ}
+  \begin{lstlisting}
+    [Unit]
+    Description=Music Player
+    After=network.target sound.target
 
+    [Service]
+    ExecStart=/usr/bin/python3 /home/pi/cm3203-project/server.py
+    WorkingDirectory=/home/pi/cm3203-project
+    User=pi
+    # This helps VLC and PulseAudio find the user session bus (as only created when user has logged in)
+    Environment=XDG_RUNTIME_DIR=/run/user/1000
+    Restart=on-failure
+    RestartSec=5
+
+    [Install]
+    WantedBy=multi-user.target
+  \end{lstlisting}
+\end{algorithm}
+
+As the device utilises a Bluetooth speaker to play the desired media, the Bluetooth device needs to be paired on start-up as well. This is ensured through a function in \texttt{server.py} that executes before the main script does. It attempts to connect to a given MAC address a total of 10 times, before it times out. This time-out then allows for support to be carried out by a carer to connect a Bluetooth device manually. Algorithm \ref{alg:bluetoothCon} demonstrates how Bluetooth connection is executed.
+\begin{algorithm}[!h]
+  \caption{connect\_bluetooth() - Python}
+  \label{alg:bluetoothCon}
+  \begin{lstlisting}[language=Python]
+    def connect_bluetooth(mac_address):
+        time.sleep(10) # Buffer time to allow for main start-up process to occur
+        print('Attempting initial connection...')
+        output = subprocess.run(["bluetoothctl", "connect", mac_address], capture_output=True, text=True)
+        for i in range(10):
+            if 'Connection successful\n' not in output.stdout:
+                print('Attempting reconnection...')
+                output = subprocess.run(["bluetoothctl", "connect", mac_address], capture_output=True, text=True)
+                print(output.stdout)
+                time.sleep(3)
+  \end{lstlisting}
+\end{algorithm}
+
+To ensure that some music is also played on start-up, the \texttt{load\_playlist()} function is called with a text file called \texttt{defaultplaylist.txt} that the end user is free to amend to a different playlist. This is illustrated in Algorithm \ref{alg:defaultPlaySnip}.
+\begin{algorithm}[!h]
+  \caption{defaultplaylist load snippet - Python}
+  \label{alg:defaultPlaySnip}
+  \begin{lstlisting}[language=]
+    f = open('defaultplaylist.txt')
+    defaultplaylist = f.read().strip().split()
+
+    if __name__ == '__main__':
+        MAC = "F8:AB:E5:4B:67:71"
+        connect_bluetooth(MAC)
+        if len(defaultplaylist) == 2:
+            loadplaylist(defaultplaylist[0], defaultplaylist[1])
+        else:
+            loadplaylist(defaultplaylist[0])
+        print("Ready!")
+  \end{lstlisting}
+\end{algorithm}
 \subsection{NFC Reading and Command Execution}\label{subsec:NFC}
 
 
