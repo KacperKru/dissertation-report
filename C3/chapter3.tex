@@ -471,7 +471,7 @@ Both \texttt{client.py} and \texttt{server.py} use the \texttt{socket} module to
 
 The device can now receive terminal commands through any \gls{ssh} terminal.
 \subsection{Start-up Behaviour}\label{subsec:startup}
-The device should not need remote interaction on start-up. if this was to be omitted, this would overcomplicate the device and make it inferior to devices already on the market, where simplicity thrives. Remote Management should be a add on, rather than a necessary tool. The device therefore needed to start playing music the moment it turns on, or reboots after a power cut. this was done through the use of \texttt{systemd} on the Raspberry Pi, where a service was created that would run \texttt{server.py} the moment a user has logged on the Pi, which should happen automatically as the Raspberry Pi has been configured to sign in automatically. Algorithm \ref{alg:playerServ} shows how \texttt{mediaplayer.service} file utilised in \texttt{systemd}. This service needs to then be moved to \texttt{/etc/systemd/system/} activated using \texttt{systemctl start mediaplayer.service} and will be executed the next time the Raspberry Pi reboots. 
+The device should not need remote interaction on start-up. If this was to be omitted, this would overcomplicate the device and make it inferior to devices already on the market, where simplicity thrives. Remote Management should be an add-on, rather than a necessary tool. The device therefore needed to start playing music the moment it turns on, or reboots after a power cut. This was done through the use of \texttt{systemd} on the Raspberry Pi, where a service was created that would run \texttt{server.py} the moment a user has logged on the Pi, which should happen automatically as the Raspberry Pi has been configured to sign in automatically. Algorithm \ref{alg:playerServ} shows how \texttt{mediaplayer.service} file utilised in \texttt{systemd}. This service needs to then be moved to \texttt{/etc/systemd/system/} activated using \texttt{systemctl start mediaplayer.service} and will be executed the next time the Raspberry Pi reboots. 
 \begin{algorithm}[!h]
   \caption{mediaplayer.service}
   \label{alg:playerServ}
@@ -523,7 +523,7 @@ To ensure that some music is also played on start-up, the \texttt{load\_playlist
     if __name__ == '__main__':
         MAC = "F8:AB:E5:4B:67:71"
         connect_bluetooth(MAC)
-        if len(defaultplaylist) == 2:
+        if len(defaultplaylist) == 2: # If shuffle has been passed as an argument
             loadplaylist(defaultplaylist[0], defaultplaylist[1])
         else:
             loadplaylist(defaultplaylist[0])
@@ -531,7 +531,115 @@ To ensure that some music is also played on start-up, the \texttt{load\_playlist
   \end{lstlisting}
 \end{algorithm}
 \subsection{NFC Reading and Command Execution}\label{subsec:NFC}
+As time allowed during the development of this project, tangible item interaction utilising \gls{nfc} was implemented alongside the button interaction. Due to the \gls{nfc} module communicating over a \gls{uart} interface, an Arudino was necessary to facilite this communication. The provided \gls{nfc} module could be switched to interface using \gls{i2c} but soldering would be necessary to switch interfaces \citep{gunengyu2022} and an official Python library from the manufacturer does not exist.
 
+The Arduino could not be fitted to the top of the Raspberry Pi due to the GrovePi+ already being seated on top, having the devices communicate over a USB bus instead. The Arduino was fitted with a base shield that contained a \gls{uart} that the \gls{nfc} module was attached to. The Arduino had two sketches, one for writing to the \gls{nfc} tags (Algorithm \ref{alg:writeNFC}) and one for reading them (Algorithm \ref{alg:readNFC}). Both scripts were adapted from sketches provided from the IOT Garage Lab Book GitLab \citep{Perera2024} and included a library to be able to interface with the module on the Arduino \citep{SeeedStudios2020}.
 
+\begin{algorithm}[!h]
+  \caption{writing\_nfc.ino - C++}
+  \label{alg:writeNFC}
+  \begin{lstlisting}[language=C++]
+    #include <NfcAdapter.h>
+    #include <PN532/PN532_HSU/PN532_HSU.h>
+
+    PN532_HSU pn532hsu(Serial1);
+    NfcAdapter nfc(pn532hsu);
+
+    String record_entry = "NAME_OF_PLAYLIST";
+
+    void setup() {
+        Serial.begin(9600);
+        while(!Serial);
+        Serial.println("NDEF Writer");
+        nfc.begin();
+    }
+
+    void loop() {
+        if (nfc.tagPresent()) {
+            Serial.println("NFC TAG FOUND");
+            // 14. Create an NdefMessage object to write a simple text or URI record to the NFC tag.
+            NdefMessage message = NdefMessage();
+            message.addUriRecord(record_entry);
+            // 15. Attempt to write this new message to the NFC tag using nfc.write().
+            bool success = nfc.write(message);
+            
+            if (success) {
+                Serial.println("Write succeeded.");
+            } else {
+                // NOTE: The original code had a capitalization error ("SERIAL.println").
+                //       Ensuring consistency here as "Serial.println".
+                Serial.println("Write failed.");
+            }
+        }
+    }
+  \end{lstlisting}
+\end{algorithm}
+
+\begin{algorithm}[!h]
+  \caption{reading\_nfc.ino - C++}
+  \label{alg:readNFC}
+  \begin{lstlisting}[language=C++]
+    #include <NfcAdapter.h>
+    #include <PN532/PN532_HSU/PN532_HSU.h>
+
+    PN532_HSU pn532hsu(Serial1);
+    NfcAdapter nfc(pn532hsu);
+
+    void setup() {
+        Serial.begin(9600);
+        while(!Serial);
+        Serial.println("NDEF Reader");
+        nfc.begin();
+    }
+
+    void loop() {
+        if (nfc.tagPresent()) {
+            NfcTag tag = nfc.read();
+            tag.print(); // Prints to serial port
+        }
+        delay(1000);
+    }
+  \end{lstlisting}
+\end{algorithm}
+\clearpage
+
+Once the tags have been written and been presented to the \gls{nfc} module, \texttt{server.py} extracts the information using Regular Expressions from the serial output of the USB bus, located through executing \texttt{ls} in \texttt{/dev/} \citep{Quibits2026}, and switches playlists based off the payload passed on the \gls{nfc} tag, as seen in Algorithm \ref{alg:readNFCPy}.
+
+\begin{algorithm}[!h]
+  \caption{nfc\_reader\_switch() - Python}
+  \label{alg:readNFCPy}
+  \begin{lstlisting}[language=Python]
+    #Accepting NFC Tags
+    serial_port = '/dev/ttyACM0'
+    baud_rate = 9600
+
+    ser = serial.Serial(serial_port, baud_rate) # Opening Serial Port on USB port Arduino is connected to.
+    
+    while True:
+        serData = ser.readline().decode('utf-8', errors='ignore')
+        if serData.startswith("    Payload"): # Selects specifically Payload
+            if serData.startswith("    Payload L") == False: # Ignores Payload Length
+                print(serData)
+                message = re.findall(r'\.(\w+)', serData) # Extracts just text information from Payload
+                media_player.stop()
+                if len(message) == 0:
+                    print('Error reading NFC tag, attempt again...')
+                else:
+                    loadplaylist(message[0])
+                media_player.play()
+  \end{lstlisting}
+\end{algorithm}
+The device can be interfaced with \gls{nfc} tags.
+
+\clearpage
 \section{Summary}\label{sec:summary}
 % Optional: short summary of the methodology. Omit if the chapter is already concise.
+The methodology was to tackle each feature individually for each week of the proposed project plan.
+\begin{enumerate}
+    \item Setup the Raspberry Pi with GrovePi and all the necessary libraries.
+    \item Implement button interaction so Raspberry Pi recognises input.
+    \item Implement media player functionality with buttons and terminal interaction.
+    \item SEtup start-up behaviour so music player plays automatically.
+    \item Implemenet \gls{nfc} interaction to switch playlists.
+\end{enumerate}
+This methodology remained fluid within development as no strict deadlines were imposed for the creation of these features. The methodology will be discussed more in depth in section \ref{sec:discussion}.
