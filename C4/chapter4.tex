@@ -13,22 +13,145 @@
 
 This chapter presents the results and evaluates them. Describe how the solution was demonstrated, include test or experimental results, and critically appraise strengths and weaknesses.
 
-\lipsum[25-26]
-
 \section{Setup}\label{sec:setup}
 % Evaluation setup: data, metrics, baselines, how experiments or tests were run.
 % Optional subsections: environment, hyperparameters, evaluation protocol.
+Being a combination of a physical device and a software solution, different types of testing had to occur to fully evaluate the performance and accuracy of the solution. the testing conducted was a combination of unit testing and integration testing. 
 
-\lipsum[27-28]
+Unit testing was utilised for the modules that can be tested automatically using the \texttt{unit\_test} module in Python. These unit tests can be seen in Algorithms \ref{alg:socketTest} and \ref{alg:playlistTest}. These unit tests also ensured that the shuffle function was called to test if shuffle was passed, the playlist was in fact shuffled.
 
+\begin{algorithm}[!h]
+  \caption{socketCommand\_Test - Python}
+  \label{alg:socketTest}
+  \begin{lstlisting}[language=Python]
+    import socket
+    import client
+    import unittest
+    import time
+    from unittest.mock import patch
+
+    '''For this unit test, server.py needs to be running'''
+
+    class Test_Socket_Commands(unittest.TestCase):
+        def test_play(self):
+            response = client.send_command('p')
+            self.assertEqual(response, 'Paused/Resumed\n')
+        
+        def test_skip(self):
+            response = client.send_command('s')
+            self.assertEqual(response, "Skipped\n")
+        
+        def test_switch(self):
+            response = client.send_command('switch default')
+            self.assertEqual(response, "Switching Playlist\n")
+            
+        def test_invalid_switch(self):
+            response = client.send_command('switch akjsdajkhsd')
+            self.assertEqual(response, "Playlist not found\n")
+            
+        def test_help_command(self):
+            response = client.send_command('help')
+            self.assertTrue(response.startswith("'--------------\nhelp:"))
+            
+        def test_invalid_command(self):
+            response = client.send_command('make sandwich')
+            self.assertEqual(response, "Invalid command\n")
+            
+        def test_null_command(self):
+            response = client.send_command('')
+            self.assertEqual(response, "Invalid command\n")
+            
+        # Exit command to be tested manually as order of tests seems to execute exit command first
+        # then the rest of the tests (resulting in failure)
+  \end{lstlisting}
+\end{algorithm}
+
+\begin{algorithm}[!h]
+  \caption{loadPlaylist\_Test - Python}
+  \label{alg:playlistTest}
+  \begin{lstlisting}[language=Python]
+    import server
+    import random
+    import unittest
+    from unittest.mock import patch
+
+    class TestLoadPlaylist(unittest.TestCase):
+        def test_valid_playlist(self):
+            self.assertEqual(server.loadplaylist('default'), True)
+            
+        def test_invalid_playlist(self):
+            self.assertEqual(server.loadplaylist('asjdasdajs'), False)
+            
+        def test_null_playlist(self):
+            self.assertEqual(server.loadplaylist(''), False)
+        
+        @patch('random.shuffle')
+        def test_shuffle_no_args(self, mock_shuffle):
+            server.loadplaylist('default')
+            self.assertFalse(mock_shuffle.called)
+            
+        @patch('random.shuffle')
+        def test_shuffle_true(self, mock_shuffle):
+            server.loadplaylist('default', 'true')
+            self.assertTrue(mock_shuffle.called)
+            
+        @patch('random.shuffle')
+        def test_shuffle_false(self, mock_shuffle):
+            server.loadplaylist('default', 'false')
+            self.assertFalse(mock_shuffle.called)
+  \end{lstlisting}
+\end{algorithm}
+
+Integration tests were used for the hardware components of the proposed solution, in this case if the button presses are recognised and audio playing from the correct Bluetooth speaker. The integration tests produce results that can be observed but require human interaction, hence why unit tests cannot be applied.
+
+The baselines and acceptance criteria for these tests were derived from the functional and non-fuctional requirements, presented in section \ref{sec:spec}. For more practical applications during the testing, a testing table was utilised, as seen in Tables \ref{tab:terminal} and \ref{tab:button}.
+
+\begin{table}[!h]
+  \centering
+  \caption{Terminal Commands Testing Table}
+  \label{tab:terminal}
+  \begin{tabular}{lcc}
+    \toprule
+    Type of Testing Data & Input & Expected Output \\
+    \midrule
+    Normal & p & Song Paused \\
+    Normal & s & Song Skipped \\
+    Normal & switch default & Switching Playlist \\
+    Boundary & N/A & N/A \\
+    Erroneous & x & Throws Error and prompts reinput \\
+    Erroneous & f & Throws Error and prompts reinput \\
+    Erroneous & switch asjdashd & Playlist not found \\
+    Null & & Throws Error and prompts reinput \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[!h]
+  \centering
+  \caption{Button Interaction Testing Table}
+  \label{tab:button}
+  \begin{tabular}{lcc}
+    \toprule
+    Type of Testing Data & Input & Expected Output \\
+    \midrule
+    Normal & D2 button press & Song Paused \\
+    Normal & D7 button press & Song Skipped \\
+    Boundary & N/A & N/A \\
+    Erroneous & D3 button press & Nothing happens \\
+    Erroneous & D5 button press & Nothing happens \\
+    Null & & Nothing happens \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Some preliminary logistical groundwork was also undertaken with the potential of user testing with care home staff with the assistance of ENRICH Cymru. This working relationship was established through visiting a conference with researchers in the field of care home, hosted by Stuart Allen, the project supervisor. Interest was expressed from ENRICH, however complications occurred during application for ethical approval. User testing therefore had to be abandoned for the project to continue ethically, as no response was given in time.
+\newpage
 \section{Results}\label{sec:results}
 % Main findings: present tables and figures; summarise key outcomes. Optional
 % subsections: by research question, by dataset, or by metric.
 
-\lipsum[29-30]
 
 \section{Discussion}\label{sec:discussion}
 % Critical appraisal: strengths, weaknesses, methodology choices; comparison
 % with prior work. Optional: ablation analysis, sensitivity analysis.
 
-\lipsum[31-32]
