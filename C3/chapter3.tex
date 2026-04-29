@@ -140,16 +140,7 @@ For the sake of simplicity, the decision to include workers was also scrapped. H
 \subsection{Initial Setup}\label{subsec:setup}
 One of the main problems that was encountered during the development of this project was simply setting up the Raspberry Pi. The components that we're utilising this project are the same as those utilised in CM2211 specification \citep{Perera2025} but the components are already set up for you for the module. The main milestone here was to have the Raspberry Pi be in a workable state to being development.
 
-Initially, the most up-to-date version of Raspberry Pi OS with the username "kacper" was installed onto the microSD card \citep{RaspberryPiFoundation2025}. This was to ensure all modern day exploits for Raspberry Pi OS were patched and all security updates were installed. However, due to the GrovePi+ being designed for an older version of Raspberry Pi OS and needing to be installed through an installation script provided by the developers Dexter Industries \citep{DexterIndustriesGrovePi2026}, the username posed an issue with installation of the libraries and necessary scripts, as can be seen in Figure \ref{fig:baduser}.
-
-\begin{figure}[!h]
-  \centering
-  \fbox{\rule{0pt}{4cm}\includegraphics[width=0.97\textwidth]{images/IncorrectUser}}
-  \caption[Incorrect Username]{Incorrect Username - require user 'pi'}\label{fig:baduser}
-\end{figure}
-The installation script is attempting to install all the packages and libraries into the 'pi' user directory but it cannot find it. This is due to the user not existing on the Raspberry Pi, so no directory associated with said user is present.
-
-This was rectified by re-imaging the Raspberry Pi with this same image but with the appropriate username. Now, the directory was present, but the installation continued to error. The packages were unable to install due to a deprecation of certain elements of the installation script, in this case \texttt{easy\_install}.
+Working with specialised embedded systems, it was paramount that each component in the system is compatible to one another. This can range from deprecated libraries within an older OS version, such as \texttt{easy\_install} in Figure \ref{fig:easyinstall}, to the OS kernel itself and the underlying frameworks for communication over the \gls{i2c} interface \citep{IOTGarage2025}. Learning about these tribulations through development, many decisions about the underlining software for the solution had to be undertaken, as any mismatch could pose as a roadblock is not immediately obvious to the developer.
 
 \begin{figure}
     \centering
@@ -174,23 +165,23 @@ This was rectified by re-imaging the Raspberry Pi with this same image but with 
     \end{lstlisting}
     \caption[Traceback - easy\_install]{Traceback Snippet - easy\_install identification}\label{fig:easyinstall}
 \end{figure}
-Figure \ref{fig:easyinstall} shows the directory "/tmp/easy\_install-ex5g9mab", illustrating that the deprecated component was called. 
 
-Some of the package did seem to install however, as can be seen when attempting to run a Python script calling the "grovepi" library, as seen in Figure \ref{fig:missmod}.
-\begin{fullwidthfigure}[!h]
-    \centering
-    \fbox{\rule{0pt}{1.7cm}\includegraphics[width=1\linewidth]{images/MissingModule}}
-    \caption[Missing Module]{Missing Module - installation not complete}\label{fig:missmod}
-\end{fullwidthfigure}
+The GrovePi+ itself and its accompanying software and libraries helped identify each of these dependencies, as after a series of OS re-images, more incompatibilities made themselves present. This went on to highlight the importance of the development environment as a whole, rather than in terms of package incompatibilities. This was largely due to the GrovePi+ also being a peripheral that has since been discontinued \citep{PiHut} so continued support from the manufacturer had ceased at the time of the development of the proposed solution. This did highlight the importance of the open-source community as the kernel incompatibility \citep{cyclicalobsessive2024} and countless other nuances (such as lacking appropriate public keys for \texttt{apt update} \citep{Jean2026} and outdated source lists in \texttt{/etc/apt/sources.list} in Figures \ref{fig:eolurl} and \ref{fig:sourceslist} \citep{rpdom2026}) were identified through community sourced web-forums.
 
-Wanting to not deviate from the installation script provided by Dexter Industries, a slightly older Raspberry Pi image was flashed instead, as suggested by user \textbf{cyclicalobsessive} on the Dexter Industry forums \citep{cyclicalobsessive2024}. The version the user suggested was \texttt{2023-05-03-raspios-buster}, which posed its own issues, as seen in Figure \ref{fig:eolurl}
+Reliance on proprietary installation methods from developers such as Dexter Industries \citep{DexterIndustriesGrovePi2026} highlighted nuances of working with outdated solutions where usernames can pose an issue with installation of the libraries and necessary scripts, as can be seen in Figures \ref{fig:baduser}.
+
+\begin{figure}[!h]
+  \centering
+  \fbox{\rule{0pt}{4cm}\includegraphics[width=0.97\textwidth]{images/IncorrectUser}}
+  \caption[Incorrect Username]{Incorrect Username - require user 'pi'}\label{fig:baduser}
+\end{figure}
+
 \begin{fullwidthfigure}[!h]
   \centering
   \fbox{\rule{0pt}{4cm}\includegraphics[width=0.97\linewidth]{images/EOLURL}}
   \caption[End of Life URL]{End of Life URL - package installation incomplete}\label{fig:eolurl}
 \end{fullwidthfigure}
 \newpage
-As this is a legacy image, the URLs used for \texttt{apt-get install} were moved over to an archive location, which needed to be reflected in \texttt{/etc/apt/source.list} \citep{rpdom2026}, as seen in Figure \ref{fig:sourceslist}. On top of this, additional public keys had to be handed to be able to pull from these sources \citep{Jean2026}. Once these have been amended, the library was installed but did not interface with the GrovePi+ shield.
 
 \begin{fullwidthfigure}[!h]
   \centering
@@ -198,23 +189,9 @@ As this is a legacy image, the URLs used for \texttt{apt-get install} were moved
   \caption[Amended source.list]{Amended source.list}\label{fig:sourceslist}
 \end{fullwidthfigure}
 
-The GrovePi+ not being able to interface with the python scripts occurred due the packages and modules being installed on an earlier version of Python (all were installed onto Python 2.7 instead, as seen in Figures \ref{fig:badPyver1} and \ref{fig:badPyver2}).
+The pre-configured image provided by Dexter Industries for the GoPiGo family of robots was considered as a potential candidate for the underlining systems \citep{DexterIndustriesGoPiGo2026} but after examining the image, it was not suitable for the use case, being bloated with unnecessary applications and local web server hosting that would waste system resources when running idle.
 
-\begin{fullwidthfigure}[!h]
-  \centering
-  \fbox{\rule{0pt}{1.3cm}\includegraphics[width=0.97\linewidth]{images/py2.7packages.png}}
-  \caption[Incorrect Python Version 1]{Incorrect Python Version - installed on 2.7}\label{fig:badPyver1}
-\end{fullwidthfigure}
-
-\begin{fullwidthfigure}[!h]
-  \centering
-  \fbox{\rule{0pt}{3cm}\includegraphics[width=0.97\linewidth]{images/py3.7packages.png}}
-  \caption[Incorrect Python Version 2]{Incorrect Python Version - empty 3.7 directory}\label{fig:badPyver2}
-\end{fullwidthfigure}
-
-The pre-configured image provided by Dexter Industries for the GoPiGo family of robots was also considered \citep{DexterIndustriesGoPiGo2026} but after examining the image, it was not suitable for the use case, being bloated with unnecessary applications and local web server hosting that would waste system resources when running idle.
-
-Further research highlighted that the most recent Raspberry Pi image was incompatible due to a newer kernel level driver, which is incompatible with the flashing process of the GrovePi and with the low-level tools for \gls{i2c} communication (as the latter relied on older kernel behaviour) \citep{IOTGarage2025}. This led to the decision of following the guide provided by IOT Garage and the installation of the \texttt{2024-10-22-raspios-bullseye} image, which is the current image on the proposed solution. The only deviation from this guide is the copying of both the \texttt{di\_i2c} and \texttt{di\_mutex} modules (they both depend on each other) into the Python 3.9 directory, as seen in Figure \ref{fig:workinggpi}. The GrovePi library is now operable and can interface with the GrovePi+ shield.
+This eventually led to the decision of following the guide provided by IOT Garage and the installation of the \texttt{2024-10-22-raspios-bullseye} image, which is the current image on the proposed solution. This provided a compromise for currency of the image (as no source URLs had to be amended) and the appropriate OS kernel and \gls{i2c} communication framework. The only deviation from this guide is the copying of both the \texttt{di\_i2c} and \texttt{di\_mutex} modules (they both depend on each other) into the Python 3.9 directory, as seen in Figure \ref{fig:workinggpi}. The GrovePi library is now operable and can interface with the GrovePi+ shield.
 
 \begin{fullwidthfigure}[!h]
   \centering
@@ -222,12 +199,13 @@ Further research highlighted that the most recent Raspberry Pi image was incompa
   \caption[Movement of Modules and Test grovepi call]{Movement of Modules and Test grovepi call}\label{fig:workinggpi}
 \end{fullwidthfigure}
 
-The initial setup was now complete and development of the solution could commence.
+The initial setup was now complete and development of the solution could commence. Although time-consuming, the initial setup helped highlight the idiosyncrasies of working on embedded systems.
 
 \subsection{Button Interaction}\label{subsec:btnint}
 The proposed solution's main form of interaction is that of button presses on the Raspberry Pi. Once the GrovePi module was installed, development commenced on recognising the button presses.
 
-An issue arose when trying to address the button presses. The first LED button was connected to the D2 port on the GrovePi shield and the other was connected to the D7 port. These ports were chosen as they were directly opposite each other on the shield, making it easier to distinguish between them both. Algorithm \ref{alg:badBtnTest} was used to test these ports.
+Many of the Grove peripherals contained 2 ports in terms of addressing them and their properties. Working with these peripherals helped highlight how each proprietary module may have its own numbering convention on which port is assigned to what attribute of the peripheral. This was pivotal in the case of the Grove LED buttons where the addressing of the inputs was \textbf{offset by 1}. This was identified through the testing of the original port numbers, in algorithm \ref{alg:badBtnTest} and introducing the offset in algorithm \ref{alg:goodBtnTest}.
+
 \begin{algorithm}[!h]
     \caption{Unsuccessful Button Port Test - Python}
     \label{alg:badBtnTest}
@@ -272,10 +250,7 @@ An issue arose when trying to address the button presses. The first LED button w
         print("\nExiting.")
     \end{lstlisting}
 \end{algorithm}
-\newpage
-Algorithm \ref{alg:badBtnTest} was not printing any statements on button presses and the logic seemed sound. testing different port numbers, \texttt{buttonP\_pin} and \texttt{buttonS\_pin} were routinely swapped out to their corresponding ports, until they were returned to the ports they were originally connected to (2 and 7). The algorithm's pin values were not changed as an oversight but output was being registered when the \texttt{buttonP} was connected to D2 but and the value of \texttt{buttonP\_pin} was 3. An \textbf{offset of 1} was identified in the port numbering.
 
-The amended line can be seen in Algorithm \ref{alg:goodBtnTest}.
 \begin{algorithm}[!h]
     \caption{Successful Button Port Test Ammendment - Python}
     \label{alg:goodBtnTest}
@@ -284,7 +259,8 @@ The amended line can be seen in Algorithm \ref{alg:goodBtnTest}.
         buttonS_pin = 8
     \end{lstlisting}
 \end{algorithm}
-\clearpage
+
+This provided valuable input that port numbers, although they may seem overt on the given embedded system (highlighted by the numbering on the GrovePi+ shield), may contain other hidden port numbers that control the output of the peripherals as well, as was the case with the Grove LED buttons.
 \subsection{Music Player Functionality}\label{subsec:playlist}
 Once the button presses were being recognised, music player functionality could now be implemented. On the image used on the proposed solution, the default media player was VLC. 
 
@@ -334,7 +310,7 @@ The python-vlc package was then installed to interface with it and have VLC act 
   \end{lstlisting}
 \end{algorithm}
 \newpage
-The pause/play button and skip button are now functional and can be used to interface with the proposed solution.
+The pause/play button and skip button were now functional and can be used to interface with the proposed solution.
 \clearpage
 To adjust for scalability and the implementation of more than one playlist, the function to load the playlist was moved into a Python function. This was done for modularity and avoiding repeating code when a playlist is to be switched. It takes two arguments, the playlist name and if it is to be shuffled. If shuffle is not passed, it defaults to False. The code snippet can be seen in Algorithm \ref{alg:loadplaylist}.
 \begin{algorithm}[!t]
@@ -369,9 +345,9 @@ To adjust for scalability and the implementation of more than one playlist, the 
   \end{lstlisting}
 \end{algorithm}
 
-The proposed solution can now play songs based off a pre-determined order in a folder, or play it shuffled.
+The proposed solution can now play songs based off a pre-determined order in a folder, or play it shuffled. This section helped illustrate the importance of reading documentation of an external library and how its dedicated data structures could be interfaced with.
 \subsection{Terminal Interaction}\label{subsec:terminal}
-Remote Management was one of the key aims for this project and without the presence of a GUI to facilite this requirement, terminal commands were introduced. The "remote" aspect came from connecting to the device using \gls{ssh} and interfacing with the terminal provided from the connection, as example of such can been in Figure \ref{fig:sshEg}. \gls{ssh} was chosen as the remote solution as it is lightweight on a system, with the OpenSSH server not visibly impacting performance on the proposed solution, and due to its security, requiring a key exchange at initial connection and credentials for each login attempt. Should the user opt for a desktop environment, \gls{vnc} was also available, with the user having to open a terminal window through the desktop environment, as seen in Figure \ref{fig:vncEg}.
+Remote Management was one of the key aims for this project and without the presence of a GUI to facilite this requirement, terminal commands were introduced. The "remote" aspect came from connecting to the device using \gls{ssh} and interfacing with the terminal provided from the connection, as example of such can be seen in Figure \ref{fig:sshEg}. \gls{ssh} was chosen as the remote solution as it is lightweight on a system, with the OpenSSH server not visibly impacting performance on the proposed solution, and due to its security, requiring a key exchange at initial connection and credentials for each login attempt. Should the user opt for a desktop environment, \gls{vnc} was also available, with the user having to open a terminal window through the desktop environment, as seen in Figure \ref{fig:vncEg}.
 
 \begin{fullwidthfigure}[!h]
   \centering
@@ -488,9 +464,11 @@ Both \texttt{client.py} and \texttt{server.py} use the \texttt{socket} module to
   \end{lstlisting}
 \end{algorithm}
 
-The device can now receive terminal commands through any \gls{ssh} terminal.
+The device can now receive terminal commands through any \gls{ssh} terminal. This section was able to bring light to how two separate Python scripts are able to interact with each other, simulating a network connection through the use of Python's \texttt{socket} library.
 \subsection{Start-up Behaviour}\label{subsec:startup}
-The device should not need remote interaction on start-up. If this was to be omitted, this would overcomplicate the device and make it inferior to devices already on the market, where simplicity thrives. Remote Management should be an add-on, rather than a necessary tool. The device therefore needed to start playing music the moment it turns on, or reboots after a power cut. This was done through the use of \texttt{systemd} on the Raspberry Pi, where a service was created that would run \texttt{server.py} the moment a user has logged on the Pi, which should happen automatically as the Raspberry Pi has been configured to sign in automatically. Algorithm \ref{alg:playerServ} shows how \texttt{mediaplayer.service} file utilised in \texttt{systemd}. This service needs to then be moved to \texttt{/etc/systemd/system/} activated using \texttt{systemctl start mediaplayer.service} and will be executed the next time the Raspberry Pi reboots. 
+The device should not need remote interaction on start-up. If this was to be omitted, this would overcomplicate the device and make it inferior to devices already on the market, where simplicity thrives. Remote Management should be an add-on, rather than a necessary tool. The device therefore needed to start playing music the moment it turns on, or reboots after a power cut. This was done through the use of \texttt{systemd} on the Raspberry Pi, where a service was created that would run \texttt{server.py} the moment a user has logged on the Pi, which should happen automatically as the Raspberry Pi has been configured to sign in automatically. 
+
+Algorithm \ref{alg:playerServ} shows how \texttt{mediaplayer.service} file utilised in \texttt{systemd}. This service needs to then be moved to \texttt{/etc/systemd/system/} activated using \texttt{systemctl start mediaplayer.service} and will be executed the next time the Raspberry Pi reboots. 
 \begin{algorithm}[!h]
   \caption{mediaplayer.service}
   \label{alg:playerServ}
@@ -549,6 +527,8 @@ To ensure that some music is also played on start-up, the \texttt{load\_playlist
         print("Ready!")
   \end{lstlisting}
 \end{algorithm}
+
+This section demonstrated how modern Linux systems execute programs on start-up through \texttt{systemd} through the utilisation of \texttt{.service} files.
 \subsection{NFC Reading and Command Execution}\label{subsec:NFC}
 As time allowed during the development of this project, tangible item interaction utilising \gls{nfc} was implemented alongside the button interaction. Due to the \gls{nfc} module communicating over a \gls{uart} interface, an Arudino was necessary to facilite this communication. The provided \gls{nfc} module could be switched to interface using \gls{i2c} but soldering would be necessary to switch interfaces \citep{gunengyu2022} and an official Python library from the manufacturer does not exist.
 
