@@ -10,33 +10,55 @@
 % (as subsections of Context or separate). End with a clear problem statement.
 % Assume a competent reader; avoid lengthy descriptions of standard tools.
 % =============================================================================
+\newthought{Tackling a project} with a foothold into an industry the author had no prior stake in, background research into dementia and existing products on the market was necessary. This ensured that the project remained novel but also didn't unnecessarily try to re-invent foundations that may already exist in the field. In this chapter, the wider context and related works are explored and seen how they contribute to the final proposed solution.
 
 \section{Context}\label{sec:context}
 % Wider context, domain, motivation. Optional subsections: stakeholders,
 % constraints, assumptions.
-\newthought{Around half a million people} suffer from dementia in the UK \citep{NHS2026}, a syndrome related to multitude of diseases including memory loss and degradation of mental faculties. This can cause confusion in executing everyday tasks, such as operating a music player. This resonated with the author, having previously witnessed a family member affected by the syndrome, and they decided to undertake this project to understand the diseases, and help research accessible technologies to improve the quality of life of these patients.
+Around half a million people suffer from dementia in the UK \citep{NHS2026}, a syndrome related to multitude of diseases including memory loss and degradation of mental faculties. This can cause confusion in executing everyday tasks, such as operating a music player. This resonated with the author, having previously witnessed a family member affected by the syndrome, and they decided to undertake this project to understand the diseases, and help research accessible technologies to improve the quality of life of these patients.
 
-The main stakeholders of the project are patients with dementia as the device was tailored towards their needs and what they would find easiest to use. This is typically reflected in simplification of \gls{ui} elements \citep{10.1007/978-3-642-39473-7_39}. In this instance, the \gls{ui} has been replaced with physical buttons and tangible objects. This concept was later peer-reviewed by the experts over at ENRICH Cymru and the idea of simplicity was validated.
+\subsection{Technical Context}\label{subsec:tecContext}
+The main stakeholders of the project are patients with dementia as the device was tailored towards their needs and what they would find easiest to use. This is typically reflected in simplification of \gls{ui} elements \citep{10.1007/978-3-642-39473-7_39}. In this instance, the \gls{ui} has been replaced with physical buttons and tangible objects. This concept was later peer-reviewed by the experts over at ENRICH Cymru and the idea of simplicity was validated. 
 
-Given the time constraint of 12 weeks, it was unrealistic to include all features, so some constraints were put in place. An example of such was the omission of development of a graphical \gls{ui} for the remote management aspect, to save time for development of core features, necessary for the functionality of the media player. In the same vein, some assumptions about the user base were also made, these being:
+It was important to recognise that the project's stakeholders wasn't limited to just the end users, but the management staff that would be operating the device predominately. Stakeholders therefore also included the carers of the dementia patients and the dementia patients' families, given their involvement in the operation of the proposed solution. Whilst the proposed solution aims to provide as much self-sufficiency to the patients as possible, it is unrealistic to assume that this would be possible for every patient in a given care home. Keeping the device simple to operate was paramount as nurses enlisted in the care of dementia patients reported having their schedule "destroyed" and having to reorgnaise their day, which ultimately took time from caring for these patients as they rarely cared for just dementia patients \citep{krupic2020experience}. The remote aspect of the proposed solution would also help save time, as support staff would not have to be physical present in the same room as the patient, allowing for them manage the device from anywhere within the care home.
+
+The family of the patients with dementia would also be stakeholders in this project. Given the carers of these patients already had a lot on their plate, families could be a viable alternative for care, as the carers usually did not have access to extra personnel \citep{krupic2020experience}. Family members of the patients may have varying degree of tech literacy so simplicity and ease of operation is once again highlighted.
+
+Given the time constraint of 12 weeks, it was unrealistic to include all features, so some constraints were put in place. An example of such was the omission of development of a graphical \gls{ui} for the remote management aspect, to save time for development of core features, necessary for the functionality of the media player.
+
+\subsection{Medical Context}\label{subsec:medContext}
+Patients with dementia, although experiencing diminished cognitive ability, still tend to retain a large portion of their musical ability, even in advanced stages of the syndrome \citep{BAIRD2015207}. This may range from playing a given instrument and recalling the accompanying musical theory that comes with it \citep{beatty1988preserved} to recognition of familiar songs, outright acknowledging the presence of familiar lyrics and not responding to unfamiliar melodies \citep{cuddy2005music}. As this is a medium largely preserved in most cases of dementia, music may hold significance in the life of a dementia patient.
+
+It is important to acknowledge the positive impact of recreational activities for the "quality of life" for dementia patients. As observed by A. S. Schreiner, E. Yamamota and H.Shiotani, patients with Alzheimer's dementia were able to "express 'Happiness' over seven times more often during Recreation Time than during Ordinary Time", concluding that all subject in their study exhibited 'Happiness' during recreation \citep{Schreiner01032005}. Although such importance has been recognised for recreation in dementia patients, most assistive technologies focused only on the 'ease of living' rather than the quality, showing a lack of development of technologies geared towards recreation \citep{10.1007/978-3-319-20916-6_38}, providing a foundation and justification for the proposed solution. 
+
+\section{Related work}\label{sec:related}
+% Prior solutions, methods, or systems; identify gaps your work addresses.
+% Optional subsections: by theme, chronology, or type (e.g.\@ systems, methods, theory).
+Dementia-friendly media players are not a new technology. Following a similar ethos to the solution proposed, radios such as the "One Button Radio" and the "Relish Radio and Music Player" \citep{Danny2021} both do not feature a screen and only have buttons and dial controls with preset radio stations and playlists. These are examples of radios specifically designed for patients with dementia. From the existence of these devices, recreational devices geared towards the enjoyment of music for patients with impaired cognitive ability do exist but may lack in features, which may become more of a hindrance as development of newer technologies continues to accelerate.
+
+Other devices on the market, not necessarily designed for patients with dementia, can also prove useful. The "Yoto Player 3rd Generation" is originally designed for children and is interfaced with cards that have been pre-programmed \citep{Yoto2023}. This device has then been adapted by MusicForDementia to include cards tailored to patients with dementia \citep{Utley2026}. This strongly implied that devices need not be designed specifically for the cognitively impaired, but would instead need appropriate adjustment to cater towards their needs instead.
+
+Similarly, software-only solutions also exist. From MusicForDementia, m4dRADIO is a web application with preset buttons that tune into online radio stations that run 24/7 with the press of the button \citep{UtleyRadio2026}. This can be put onto a touch screen tablet, so the patient can tap onto the button and listen to music of their own volition. This form of media player can be seen as more accessible as specialist technology is not necessary; a device with a speaker and a web browser can prove just as useful.
+
+A device tailored just for music playback may also be considered useful. \gls{dap}s are able to provide a simple experience for the end user, giving only the necessary controls to interact with the playback of the audio being played from them. The iPod Shuffle is a good example of this technology as it omits the use of a screen and favours simple controls over complicated \gls{ui}s. This is due to the focus on outputting audio, rather than creating a device that is a "jack of all trades" like the modern smartphone.
+
+Notably, none of these solutions allow for direct remote management, which is where this project comes into play. Most of these alternatives require physical interaction to amend music selection, adjust volume, and pause/play music. This project aims to eliminate this necessity.
+
+\section{Problem statement}\label{sec:problem}
+% Clear statement of the problem and, if applicable, research question(s).
+Media Players for the cognitively impaired lack remote connectivity, allowing for ease of management through a local network. This project aims to create a media player that can be interfaced with remotely, physically and through tangible artifacts. The objectives of this project are as follows:
+\begin{enumerate}
+    \item Create a media player device that can output audio
+    \item Develop a \textbf{physical} interface to interact with the media player
+    \item Develop a \textbf{remote} interface to interact with the media player
+    \item Develop a \textbf{tangible artifact} interface to interact with the media player
+    \item Communicate with representatives of the stakeholders to retrieve feedback on the features and general operation of the device.
+\end{enumerate}
+
+Some assumptions about the user base were made to meet to inform design decisions, these being:
 \begin{itemize}
     \item The facility for the patients has access to a computer network.
     \item The facility has computers that are connected to the same network.
     \item The facility has access to a mouse, keyboard and monitor to perform the initial set-up on the device.
 \end{itemize}
 Rectifying these assumptions would be addressed if more time and resources were available, being further discussed in section \ref{sec:future}.
-
-\section{Related work}\label{sec:related}
-% Prior solutions, methods, or systems; identify gaps your work addresses.
-% Optional subsections: by theme, chronology, or type (e.g.\@ systems, methods, theory).
-Dementia-friendly media players are not a new technology. Following a similar ethos to the solution proposed, radios such as the "One Button Radio" and the "Relish Radio and Music Player" \citep{Danny2021} both do not feature a screen and only have buttons and dial controls with preset radio stations and playlists. These are examples of radios specifically designed for patients with dementia.
-
-Other devices on the market, not necessarily designed for patients with dementia, can also prove useful. The "Yoto Player 3rd Generation" is originally designed for children and is interfaced with cards that have been pre-programmed \citep{Yoto2023}. This device has then been adapted by MusicForDementia to include cards tailored to patients with dementia \citep{Utley2026}.
-
-Similarly, software-only solutions also exist. From MusicForDementia, m4dRADIO is a web application with preset buttons that tune into online radio stations that run 24/7 with the press of the button \citep{UtleyRadio2026}. This can be put onto a touch screen tablet, so the patient can tap onto the button and listen to music of their own volition.
-
-Notably, none of these solutions allow for remote management, which is where this project comes into play. Most of these alternatives require physical interaction to amend music selection, adjust volume, and pause/play music. This project aims to eliminate this necessity.
-
-\section{Problem statement}\label{sec:problem}
-% Clear statement of the problem and, if applicable, research question(s).
-Media Players for the cognitively impaired lack remote connectivity. This project aims to create a media player that can be interfaced remotely, using buttons on the device and through tangible artifacts, such as \gls{nfc} tags.
