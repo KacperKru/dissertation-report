@@ -101,114 +101,220 @@ Unit testing was utilised for the modules that can be tested automatically using
             self.assertFalse(mock_shuffle.called)
   \end{lstlisting}
 \end{algorithm}
+\clearpage
 
 System tests were used for the hardware components of the proposed solution, in this case if the button presses are recognised and audio playing from the correct Bluetooth speaker. The system tests produce results that can be observed but require human interaction, hence why unit tests through Python's \texttt{unittest} module cannot be applied.
 
-The baselines and acceptance criteria for these tests were derived from the functional and non-fuctional requirements, presented in section \ref{sec:spec}. For more practical applications during the testing, a testing table was utilised, as seen in Tables \ref{tab:terminal} and \ref{tab:button}.
+The baselines and acceptance criteria for these tests were derived from the functional and non-fuctional requirements, presented in section \ref{sec:spec}.
 
-\begin{table}[!h]
-  \centering
-  \caption{Terminal Commands Testing Table}
-  \label{tab:terminal}
-  \begin{tabular}{lccc}
-    \toprule
-    Test No. & Type of Testing Data & Input & Expected Output \\
-    \midrule
-    TT1 & Normal & p & Song Paused \\
-    TT2 & Normal & s & Song Skipped \\
-    TT3 & Normal & switch default & Switching Playlist \\
-    TT4 & Normal & switch default true & Switching Playlist \\
-    TT5 & Normal & exit & Exiting \\
-    TT6 & Boundary & N/A & N/A \\
-    TT7 & Erroneous & x & Throws Error and prompts reinput \\
-    TT8 & Erroneous & f & Throws Error and prompts reinput \\
-    TT9 & Erroneous & switch asjdashd & Playlist not found \\
-    TT10 & Null & & Throws Error and prompts reinput \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+Testing of the \gls{nfc} module and its reliability was conducted through the use of amending the existing function, documenting:
+\begin{itemize}
+  \item How many attempts to scan a \gls{nfc} tag have been made.
+  \item How many attempts were successful and switched playlists as intended.
+\end{itemize}
 
-\begin{table}[!h]
-  \centering
-  \caption{Button Interaction Testing Table}
-  \label{tab:button}
-  \begin{tabular}{lccc}
-    \toprule
-    Test No. & Type of Testing Data & Input & Expected Output \\
-    \midrule
-    BT1 & Normal & D2 button press & Song Paused \\
-    BT2 & Normal & D7 button press & Song Skipped \\
-    BT3 & Boundary & N/A & N/A \\
-    BT4 & Erroneous & D3 button press & Nothing happens \\
-    BT5 & Erroneous & D5 button press & Nothing happens \\
-    BT6 & Null & & Nothing happens \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+This was done by creating counters in the form of a list (as they are mutable) that was updated throughout execution. For the function to gain access to these counters, they were passed as arguments and the appropriate \texttt{threading} call was amended to reflect this change. These amendedments can be seen in Algorithms \ref{alg:globalCounters}, \ref{alg:testNFCSwitch} and \ref{alg:NFCReaderCallAmend}.
 
+\begin{algorithm}[!h]
+  \caption{Counters for \gls{nfc} Test Snippet - Python}
+  \label{alg:globalCounters}
+  \begin{lstlisting}[language=Python]
+    import time, grovepi, vlc, os, threading, socket, subprocess, serial, re, random
+
+    buttonP_pin = 3 # For some odd reason, the port number + 1 recognises the appropriate button
+
+    buttonS_pin = 8
+
+    grovepi.pinMode(buttonP_pin, "INPUT")
+    grovepi.pinMode(buttonS_pin, "INPUT")
+
+    grovepi.digitalWrite(buttonP_pin - 1, 1)
+
+    media_player = vlc.MediaListPlayer() # Intialises Playlist
+    instance = vlc.Instance() # Creates VLC instance
+
+    successfulNFCReads = [0] # New Addition
+    attemptedNFCReads = [0]
+  \end{lstlisting}
+\end{algorithm}
+
+\begin{algorithm}[!h]
+  \caption{Amended nfc\_reader\_switch() with counter parameters - Python}
+  \label{alg:testNFCSwitch}
+  \begin{lstlisting}[language=Python]
+    def nfc_reader_switch(successfulNFCReads, attemptedNFCReads): # Accetps new arguments
+        #Accepting NFC Tags
+        serial_port = '/dev/ttyACM0'
+        baud_rate = 9600
+
+        ser = serial.Serial(serial_port, baud_rate)
+
+        while True:
+            serData = ser.readline().decode('utf-8', errors='ignore')
+            if serData.startswith("    Payload"):
+                if serData.startswith("    Payload L") == False:
+                    print(serData)
+                    attemptedNFCReads[0] += 1 # Attempted read occured
+                    message = re.findall(r'\.([a-zA-Z]+(?:\s+[a-zA-Z]+)?)', serData)
+                    split_msg = message[0].split()
+                    media_player.stop()
+                    print(attemptedNFCReads)
+                    if len(split_msg) == 0:
+                        print('Error reading NFC tag, attempt again...')
+                    else:
+                        if len(split_msg) > 1:
+                            loadplaylist(split_msg[0], split_msg[1])
+                            successfulNFCReads[0] += 1 # If data extracted successfully, marked as successful
+                        else:
+                            loadplaylist(message[0])
+                            successfulNFCReads[0] += 1
+                    media_player.play()
+  \end{lstlisting}
+\end{algorithm}
+
+\begin{algorithm}[!h]
+  \caption{\texttt{threading} call amendment for \gls{nfc} Testing - Python}
+  \label{alg:NFCReaderCallAmend}
+  \begin{lstlisting}[language=Python]
+    if __name__ == '__main__':
+        threading2 = threading.Thread(target=nfc_reader_switch, args=(successfulNFCReads, attemptedNFCReads)) # Arguments passed into execution
+        threading2.daemon = True
+        threading2.start()
+  \end{lstlisting}
+\end{algorithm}
+\newpage
 Some preliminary logistical groundwork was also undertaken with the potential of user testing with care home staff with the assistance of ENRICH Cymru. This working relationship was established through visiting a conference with researchers in the field of care home, hosted by Stuart Allen, the project supervisor. Interest was expressed from ENRICH, however complications occurred during application for ethical approval. User testing therefore had to be abandoned for the project to continue ethically, as no response was given in time.
 \section{Results}\label{sec:results}
 % Main findings: present tables and figures; summarise key outcomes. Optional
 % subsections: by research question, by dataset, or by metric.
 The results of the test conducted for each component will be split up into corresponding sub-sections with their appropriate figures and test data. In summary, all of the unit tests and system tests passed. This was largely due to the testing spearheading development, encouraging error checking throughout to keep the system as reliable as possible.
 
-\clearpage
 \subsection{Terminal Command Testing Results}\label{subsec:terminalResults}
 This module was evaluated using unit tests to see if the appropriate output was returned through the terminal. As seen in algorithm \ref{alg:socketTest}, each possible command bar the \texttt{exit} command has been set up as an automatic test, as the \texttt{exit} command was tested in isolation. Results of the tests are seen in Table \ref{tab:terminalResults}
 
 \begin{table}[!h]
   \centering
-  \caption{Terminal Commands Results Table}
+  \caption{Terminal Commands Testing Table}
   \label{tab:terminalResults}
-  \begin{tabular}{lcc}
+  \begin{tabularx}{\linewidth}{llXXl}
     \toprule
-    Test No. & Actual Output & Pass/Fail \\
+    Type of Testing Data & Input & Expected Output & Actual Output & Pass/Fail \\ \hline
     \midrule
-    TT1 & Song Paused & Pass \\
-    TT2 & Song Skipped & Pass \\
-    TT3 & Switching Playlist & Pass \\
-    TT4 & Switching Playlist & Pass \\
-    TT5 & Exiting & Pass \\
-    TT6 & N/A & Pass \\
-    TT7 & Throws Error and prompts reinput & Pass \\
-    TT8 & Throws Error and prompts reinput & Pass \\
-    TT9 & Playlist not found & Pass \\
-    TT10 & Throws Error and prompts reinput & Pass \\
+    Normal & p & Song Paused & Song Paused & Pass \\ \hline
+    Normal & s & Song Skipped & Song Skipped & Pass \\ \hline
+    Normal & switch default & Switching Playlist & Switching Playlist & Pass \\ \hline
+    Normal & switch default true & Switching Playlist & Switching Playlist & Pass \\ \hline
+    Normal & exit & Exiting & Exiting & Pass \\ \hline
+    Erroneous & x & Throws Error and prompts reinput & Throws Error and prompts reinput & Pass \\ \hline
+    Erroneous & f & Throws Error and prompts reinput & Throws Error and prompts reinput & Pass \\ \hline
+    Erroneous & switch asjdashd & Playlist not found & Playlist not found & Pass \\ \hline
+    Null & N/A & Throws Error and prompts reinput & Throws Error and prompts reinput & Pass \\ \hline
     \bottomrule
-  \end{tabular}
+  \end{tabularx}
 \end{table}
-All of the results returned a pass with handling all the types of data that could be passed into the terminal, based off the initial testing plan. Based off these results, we can conclude that each command that is passed into the terminal returns the expected output, satisfying Functional Requirement \ref{req:correctCommand}.
 
+All of the results returned a pass with handling all the types of data that could be passed into the terminal.
+\clearpage
 \subsection{Button Interaction Testing Results}\label{subsec:btnResults}
-This module was evaluated using system tests as human input was necessary so automated unit tests were impractical to enact. The tests were conducted according to Testing Table \ref{tab:button}. The results for these tests can be seen in Table \ref{tab:buttonResults}.
+This module was evaluated using system tests as human input was necessary so automated unit tests were impractical to enact. The results for these tests can be seen in Table \ref{tab:buttonResults}.
 
 \begin{table}[!h]
   \centering
-  \caption{Button Interaction Results Table}
+  \caption{Button Interaction Testing Table}
   \label{tab:buttonResults}
-  \begin{tabular}{lcc}
+  \begin{tabular}{lllll}
     \toprule
-    Test No. & Expected Output & Pass/Fail \\
+    Type of Testing Data & Input & Expected Output & Actual Output & Pass/Fail \\
     \midrule
-    BT1 & Song Paused & Pass \\
-    BT2 & Song Skipped & Pass \\
-    BT3 & N/A & Pass \\
-    BT4 & Nothing happens & Pass \\
-    BT5 & Nothing happens & Pass \\
-    BT6 & Nothing happens & Pass \\
+    Normal & D2 button press & Song Paused & Song Paused & Pass \\
+    Normal & D7 button press & Song Skipped & Song Skipped & Pass \\
+    Erroneous & D3 button press & Nothing happens & Nothing happens & Pass \\
+    Erroneous & D5 button press & Nothing happens & Nothing happens & Pass \\
+    Null & N/A & Nothing happens & Nothing happens & Pass \\
     \bottomrule
   \end{tabular}
 \end{table}
-All of these system tests returned a pass with all of the documented button interactions in the initial testing plan, including mismatched port numbers. Based off these results, it can be concluded that the proposed solution can be interfaced with using button interaction, satisfying Functional Requirements \ref{req:playBtn} and \ref{req:skipBtn}. 
+All of these system tests returned a pass with all of the documented button interactions, including inputs from mismatched port numbers. 
 
 \subsection{Loading Playlist Testing Results}\label{subsec:playlistResults}
-
+Being a self-contained function that did not require human interaction during its testing process, \texttt{load\_playist()} was a perfect candidate for the Python \texttt{unittest} module. The preconstructed unit tests attempts to load the \texttt{default} playlist with and without the \texttt{shuffle} parameter present. The results can be seen in Table \ref{tab:loadPlaylistTest}.
+\begin{table}[!h]
+  \centering
+  \caption{load\_playlist() Testing Table}
+  \label{tab:loadPlaylistTest}
+  \begin{tabular}{lllll}
+    \toprule
+    Type of Testing Data & Input & Expected Output & Actual Output & Pass/Fail \\
+    \midrule
+    Normal & \texttt{default} & True & True & Pass \\
+    Normal & \texttt{default} & Shuffle Not Called & Shuffle Not Called & Pass \\
+    Normal & \texttt{default false} & Shuffle Not Called & Shuffle Not Called & Pass \\
+    Normal & \texttt{default true} & Shuffle Called & Shuffle Called & Pass \\
+    Erroneous & \texttt{asjdasdajs} & False & False & Pass \\
+    Null & N/A & False & False & Pass \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+All of the unit tests for this function were able to pass, demonstrating how the function is to behave. 
 \subsection{NFC System Testing Results}\label{subsec:NFCResults}
+The \gls{nfc} module also required human interaction during the testing process so was subject to system tests, instead of unit tests. The process of the test was to leave a \gls{nfc} tag onto the antenna for 100 cycles of scanning the tag and see what percentage scans were successful. The results of this test are visible in Table \ref{tab:NFCScanResults}
+\clearpage
+\begin{table}[!h]
+  \centering
+  \caption{\gls{nfc} Scan Robustness Testing Data}
+  \label{tab:NFCScanResults}
+  \begin{tabular}{llll}
+    \toprule
+    \gls{nfc} Tag Content & Attempted \gls{nfc} Scans & Successful \gls{nfc} Scans & Success Rate (\%)  \\
+    \midrule
+    \texttt{default} & 100 & 100 & 100\% \\
+    \texttt{backrooms} & 100 & 100 & 100\% \\
+    \texttt{jazz} & 100 & 100 & 100\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+All of these preregistered \gls{nfc} tags were read at a 100\% success rate and enacted their appropriate playlist switch each time they were scanned.
 
 \subsection{Response Time Testing Results}\label{subsec:execTimeResults}
+Response Times for various components (including scalability of the playlists sizes) of the proposed solution were tested using either a stopwatch as execution occurred (in the case of time taken for the main script to be ran at boot) or utilising the \texttt{time} command on Linux and taking the \texttt{real} value, as it represents the real time between invocation and execution. Scalability was tested through a larger playlist named \texttt{bigplaylist} that contained three times the amount of songs in comparison to the three playlists created through development. The detailed timings for each of these can be seen in the appendix \ref{app:results} but an abridged version containing the averages can be seen in Table \ref{tab:avgResTime}.
+\begin{table}[!h]
+  \centering
+  \caption{Average Response Time for Components}
+  \label{tab:avgResTime}
+  \begin{tabularx}{\linewidth}{XlXl}
+    \toprule
+    Component Tested & Average Time Taken (s) & Associated Requirement & Pass/Fail \\
+    \midrule
+    Load Script on Boot & 34.9s & Non-functional Requirement \ref{req:startupTime} & Pass \\ \hline
+    Skip Song Execute & 0.1454s & Non-functional Requirement \ref{req:remoteTime} & Pass \\ \hline
+    Pause/Play Song Execute & 0.1434s & Non-functional Requirement \ref{req:remoteTime} & Pass \\ \hline
+    Switch Playlist Execute & 0.1437s & Non-functional Requirement \ref{req:remoteTime} & Pass \\ \hline
+    Switch with Shuffle Execute & 0.1472s & Non-functional Requirement \ref{req:remoteTime} & Pass \\ \hline
+    Switch Large Playlist Execute & 0.1416s & Non-functional Requirement \ref{req:scalability} & Pass \\ \hline
+    Switch Large Playlist with Shuffle Execute & 0.141s & Non-functional Requirement \ref{req:scalability} & Pass \\ \hline
+    \bottomrule
+  \end{tabularx}
+\end{table}
 
-\subsection{Miscellaneous Testing Results}\label{{subsec:miscResults}}
-% For each of the requirements that don't fit into their own category
+On average, terminal code execution took approximately 0.144s to execute. Including boot behaviour, average code execution is estimated to be 5.109s.
+
+\subsection{Security Testing Results}\label{{subsec:secureResults}}
+Lastly, the final component to be tested through system testing was the remote solutions authentication methods. Here, two users attempt to connect to the proposed solution using made-up credentials and are not allowed access to the \gls{ssh} terminal, pictured in Figures \ref{fig:noUser1} and \ref{fig:noUser2}.
+
+\begin{figure}[!h]
+  \centering
+  \fbox{\rule{0pt}{3.7cm}\includegraphics[width=0.97\textwidth]{images/nouser1}}
+  \caption[Incorrect Credentials]{Incorrect Credentials - user 'kacper'}\label{fig:noUser1}
+\end{figure}
+
+\begin{figure}[!h]
+  \centering
+  \fbox{\rule{0pt}{3.5cm}\includegraphics[width=0.97\textwidth]{images/nouser2}}
+  \caption[Incorrect Credentials]{Incorrect Credentials - user 'nate'}\label{fig:noUser2}
+\end{figure}
+
+As the users are not able to access the \gls{ssh} terminal, the test is given a pass.
 
 \section{Discussion}\label{sec:discussion}
 % Critical appraisal: strengths, weaknesses, methodology choices; comparison

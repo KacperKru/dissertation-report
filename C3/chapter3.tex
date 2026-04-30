@@ -46,10 +46,10 @@ To ensure consistency between these modes of input and outlining clear deliverab
 \subsection{Non-functional requirements}\label{subsec:nonfuncreq}
 In a similar vein, the proposed solution needs to function in an efficient and safe manner. It is unreasonable to expect the end users to have to wait extended periods of time for actions to be performed, and potentially compromise their network with the proposed solution as the attacker's entry point. Therefore, the following non-functional requirements were also fulfilled:
 \begin{enumerate}
-    \item\label{req:remoteTme} Commands over the remote terminal should take \textbf{no longer than} 5 seconds to execute. Given the simple nature of the commands passed into the terminal, the expectation of response time of these commands will likely be instant, although expectations may vary \citep{shneiderman1984response}.  
+    \item\label{req:remoteTime} Commands over the remote terminal should take \textbf{no longer than} 5 seconds to execute. Given the simple nature of the commands passed into the terminal, the expectation of response time of these commands will likely be instant, although expectations may vary \citep{shneiderman1984response}.  
     \item\label{req:remoteAuth} Users without authorisation should \textbf{not} be able to connect to the device remotely. This ensures the security of the device.
     \item\label{req:easeofuse} The device needs to be \textbf{intuitive} and easy to use.
-    \item\label{req:startupTIme} Start-up of the device should take \textbf{no longer than} 2 minutes. This is based off experience throughout development on the Raspberry Pi on its average boot times and what the author expects to be the average expectation for boot times for the end users.
+    \item\label{req:startupTime} Start-up of the device should take \textbf{no longer than} 2 minutes. This is based off experience throughout development on the Raspberry Pi on its average boot times and what the author expects to be the average expectation for boot times for the end users.
     \item\label{req:NFCtolerance} The antenna on the device should read a presented tangible artifact successfully in \textbf{no more than} 10 attempts. This provides a reasonable buffer between if the data collection delay is a hardware/software fault or due to user error.
     \item\label{req:scalability} The device should be \textbf{scalable}, and not suffer any performance drops as the playlists increase.
     \item\label{req:reboot} The device should \textbf{reboot} after a power cut and return to a \textbf{workable state} once power is restored.
@@ -613,19 +613,24 @@ Once the tags have been written and been presented to the \gls{nfc} module, \tex
     baud_rate = 9600
 
     ser = serial.Serial(serial_port, baud_rate) # Opening Serial Port on USB port Arduino is connected to.
-    
+   
     while True:
         serData = ser.readline().decode('utf-8', errors='ignore')
         if serData.startswith("    Payload"): # Selects specifically Payload
             if serData.startswith("    Payload L") == False: # Ignores Payload Length
                 print(serData)
-                message = re.findall(r'\.(\w+)', serData) # Extracts just text information from Payload
-                media_player.stop()
+                 message = re.findall(r'\.([a-zA-Z]+(?:\s+[a-zA-Z]+)?)', serData) # Extracts just text information from Payload
                 if len(message) == 0:
                     print('Error reading NFC tag, attempt again...')
                 else:
-                    loadplaylist(message[0])
-                media_player.play()
+                    split_msg = message[0].split() # Splits message in case NFC tag has shuffle parameter
+                    media_player.stop()
+                    if len(split_msg) > 1: # If shuffle parameter present
+                        loadplaylist(split_msg[0], split_msg[1])
+                    else:
+                        loadplaylist(message[0])
+                    media_player.play()
+
   \end{lstlisting}
 \end{algorithm}
 The device can be interfaced with \gls{nfc} tags.
