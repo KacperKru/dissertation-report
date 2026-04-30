@@ -34,26 +34,26 @@ Before implementation could properly begin, identifying clear deliverables and s
 
 \subsection{Functional requirements}\label{subsec:funcreq}
 To ensure consistency between these modes of input and outlining clear deliverables, the following functional requirements were fufilled:
-\begin{itemize}
-    \item Pressing the play/pause button \textbf{must} play and pause the current song being played.
-    \item Pressing the skip button \textbf{must} skip the current song being played to the next song in the playlist.
-    \item The device \textbf{must} be able to be interfaced with remotely.
-    \item Sending commands over an remote terminal \textbf{must} perform the action that it has been assigned to do so.
-    \item Presenting a tangible artifact to the appropriate antenna \textbf{must} perform a playlist switch to a given playlist present on the artefact.
-    \item The device \textbf{must} play audio through a predefined speaker.
-    \item The device \textbf{must} always be in a usable state. 
-\end{itemize}
+\begin{enumerate}
+    \item\label{req:playBtn} Pressing the play/pause button \textbf{must} play and pause the current song being played.
+    \item\label{req:skipBtn} Pressing the skip button \textbf{must} skip the current song being played to the next song in the playlist.
+    \item\label{req:remoteCon} The device \textbf{must} be able to be interfaced with remotely.
+    \item\label{req:correctCommand} Sending commands over a remote terminal \textbf{must} perform the action that it has been assigned to do so.
+    \item\label{req:NFCcorrect} Presenting a tangible artifact to the appropriate antenna \textbf{must} perform a playlist switch to a given playlist present on the artefact.
+    \item\label{req:audioPlayback} The device \textbf{must} play audio through a predefined speaker.
+    \item\label{req:usable} The device \textbf{must} always be in a usable state. 
+\end{enumerate}
 \subsection{Non-functional requirements}\label{subsec:nonfuncreq}
 In a similar vein, the proposed solution needs to function in an efficient and safe manner. It is unreasonable to expect the end users to have to wait extended periods of time for actions to be performed, and potentially compromise their network with the proposed solution as the attacker's entry point. Therefore, the following non-functional requirements were also fulfilled:
-\begin{itemize}
-    \item Commands over the remote terminal should take \textbf{no longer than} 5 seconds to execute. Given the simple nature of the commands passed into the terminal, the expectation of response time of these commands will likely be instant, although expectations may vary \citep{shneiderman1984response}.  
-    \item Users without authorisation should \textbf{not} be able to connect to the device remotely. This ensures the security of the device.
-    \item The device needs to be \textbf{intuitive} and easy to use.
-    \item Start-up of the device should take \textbf{no longer than} 2 minutes. This is based off experience throughout development on the Raspberry Pi on its average boot times and what the author expects to be the average expectation for boot times for the end users.
-    \item The antenna on the device should read a presented tangible artifact successfully in \textbf{no more than} 10 attempts. This provides a reasonable buffer between if the data collection delay is a hardware/software fault or due to user error.
-    \item The device should be \textbf{scalable}, and not suffer any performance drops as the playlists increase.
-    \item The device should \textbf{reboot} after a power cut and return to a \textbf{workable state} once power is restored.
-\end{itemize}
+\begin{enumerate}
+    \item\label{req:remoteTme} Commands over the remote terminal should take \textbf{no longer than} 5 seconds to execute. Given the simple nature of the commands passed into the terminal, the expectation of response time of these commands will likely be instant, although expectations may vary \citep{shneiderman1984response}.  
+    \item\label{req:remoteAuth} Users without authorisation should \textbf{not} be able to connect to the device remotely. This ensures the security of the device.
+    \item\label{req:easeofuse} The device needs to be \textbf{intuitive} and easy to use.
+    \item\label{req:startupTIme} Start-up of the device should take \textbf{no longer than} 2 minutes. This is based off experience throughout development on the Raspberry Pi on its average boot times and what the author expects to be the average expectation for boot times for the end users.
+    \item\label{req:NFCtolerance} The antenna on the device should read a presented tangible artifact successfully in \textbf{no more than} 10 attempts. This provides a reasonable buffer between if the data collection delay is a hardware/software fault or due to user error.
+    \item\label{req:scalability} The device should be \textbf{scalable}, and not suffer any performance drops as the playlists increase.
+    \item\label{req:reboot} The device should \textbf{reboot} after a power cut and return to a \textbf{workable state} once power is restored.
+\end{enumerate}
 
 \section{AI and machine learning models}\label{sec:aiml}
 % AI/ML: model choice, training and validation, evaluation methodology. Omit otherwise.
@@ -635,10 +635,10 @@ The device can be interfaced with \gls{nfc} tags.
 % Optional: short summary of the methodology. Omit if the chapter is already concise.
 The methodology was to tackle each feature individually for each week of the proposed project plan.
 \begin{enumerate}
-    \item Setup the Raspberry Pi with GrovePi and all the necessary libraries.
+    \item Set up the Raspberry Pi with GrovePi and all the necessary libraries.
     \item Implement button interaction so Raspberry Pi recognises input.
     \item Implement media player functionality with buttons and terminal interaction.
-    \item SEtup start-up behaviour so music player plays automatically.
+    \item Set up start-up behaviour so music player plays automatically.
     \item Implemenet \gls{nfc} interaction to switch playlists.
 \end{enumerate}
 This methodology remained fluid within development as no strict deadlines were imposed for the creation of these features. The methodology will be discussed more in depth in section \ref{sec:discussion}.
