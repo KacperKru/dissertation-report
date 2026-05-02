@@ -277,7 +277,9 @@ The \gls{nfc} module also required human interaction during the testing process 
 All of these preregistered \gls{nfc} tags were read at a 100\% success rate and enacted their appropriate playlist switch each time they were scanned.
 
 \subsection{Response Time Testing Results}\label{subsec:execTimeResults}
-Response Times for various components (including scalability of the playlists sizes) of the proposed solution were tested using either a stopwatch as execution occurred (in the case of time taken for the main script to be ran at boot) or utilising the \texttt{time} command on Linux and taking the \texttt{real} value, as it represents the real time between invocation and execution. Scalability was tested through a larger playlist named \texttt{bigplaylist} that contained three times the amount of songs in comparison to the three playlists created through development. The detailed timings for each of these can be seen in the appendix \ref{app:results} but an abridged version containing the averages can be seen in Table \ref{tab:avgResTime}.
+Response Times for various components (including scalability of the playlists sizes) of the proposed solution were tested using either a stopwatch as execution occurred (in the case of time taken for the main script to be ran at boot, denoted by the predefined speaker playing the first song) or utilising the \texttt{time} command on Linux and taking the \texttt{real} value, as it represents the real time between invocation and execution. 
+
+Scalability was tested through a larger playlist named \texttt{bigplaylist} that contained three times the amount of songs in comparison to the three playlists created through development. The detailed timings for each of these can be seen in the appendix \ref{app:results} but an abridged version containing the averages can be seen in Table \ref{tab:avgResTime}.
 \begin{table}[!h]
   \centering
   \caption{Average Response Time for Components}
@@ -299,7 +301,7 @@ Response Times for various components (including scalability of the playlists si
 
 On average, terminal code execution took approximately 0.144s to execute. Including boot behaviour, average code execution is estimated to be 5.109s.
 
-\subsection{Security Testing Results}\label{{subsec:secureResults}}
+\subsection{Security Testing Results}\label{subsec:secureResults}
 Lastly, the final component to be tested through system testing was the remote solutions authentication methods. Here, two users attempt to connect to the proposed solution using made-up credentials and are not allowed access to the \gls{ssh} terminal, pictured in Figures \ref{fig:noUser1} and \ref{fig:noUser2}.
 
 \begin{figure}[!h]
@@ -314,7 +316,7 @@ Lastly, the final component to be tested through system testing was the remote s
   \caption[Incorrect Credentials]{Incorrect Credentials - user 'nate'}\label{fig:noUser2}
 \end{figure}
 
-As the users are not able to access the \gls{ssh} terminal, the test is given a pass.
+As the users are not able to access the \gls{ssh} terminal with incorrect credentials, the test is given a pass.
 
 \section{Discussion}\label{sec:discussion}
 % Critical appraisal: strengths, weaknesses, methodology choices; comparison

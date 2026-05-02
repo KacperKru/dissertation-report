@@ -10,38 +10,50 @@
 % contributions (as part of Conclusions or a bullet list).
 % =============================================================================
 
-This chapter concludes the dissertation. Summarise the aims, main results, and what was learned; then outline future work and improvements.
-
-\lipsum[35-36]
+Closing out this project, conclusions were drawn from the results that were gathered in section \ref{sec:results} and potential avenues for further development, if given additional time and resources, were considered.
 
 \section{Conclusions}\label{sec:conclusions}
 % Summary of aims, key results, and main takeaways. Optional: list of contributions.
+The summation of this project created a functional media player that has multiple ways of interfacing with, tailored to make the system as simple as possible to operate. It allows for the patient to recover a sense of independence by providing simple controls for them to operate the media player, either through button presses or interacting with tangible artefacts, yet also providing a useful avenue for carers of the patient to support them when physical interaction is not feasible. The results of each of the tests conducted helped provide evidence on the satisfaction of the proposed Funtional and Non-functional, these being:
 
-% Terminal Interaction
-Based off these results, we can conclude that each command that is passed into the terminal returns the expected output, satisfying Functional Requirement \ref{req:correctCommand}.
+\begin{itemize}
+    \item Terminal Interaction results in subsection \ref{subsec:terminalResults} satisfying Functional Requirement \ref{req:correctCommand}.
+    \item Button Interaction results in subsection \ref{subsec:btnResults} satisfying Functional Requirements \ref{req:playBtn} and \ref{req:skipBtn}.
+    \item NFC Interaction results in subsection \ref{subsec:NFCResults} satisfying Functional Requirement \ref{req:NFCcorrect} and Non-functional Requirement \ref{req:NFCtolerance}.
+    \item Response Time Testing results in subsection \ref{subsec:execTimeResults} satisfying Functional Requirement \ref{req:usable} and Non-functional Requirements \ref{req:remoteTime}, \ref{req:startupTime}, \ref{req:reboot} and \ref{req:scalability}. Through the testing of response times, the condition met for the script running at boot time being executed fully was the playing of media on a predefined speaker. Given the success of these tests, Functional Requirement \ref{req:audioPlayback} was also satisfied.
+    \item Secure Testing results in subsection \ref{subsec:secureResults} satisfying Functional Requirement \ref{req:remoteCon} and Non-functional Requirement \ref{req:remoteAuth}.
+\end{itemize}
 
-% Button Interaction
-Based off these results, it can be concluded that the proposed solution can be interfaced with using button interaction, satisfying Functional Requirements \ref{req:playBtn} and \ref{req:skipBtn}. 
+The testing results of the \texttt{load\_playlist()} module demonstrated the robustness of the module, its tolerance for different types of inputs and its functionality working as intended. These unit tests are not attributed to any particular Functional Requirement but feed into ensuring that the system as a whole is working as intended.
 
-% load_playlist
-This demonstrated the robustness of the module, its tolerance for different types of inputs and its functionality working as intended. These unit tests are not attributed to any particular Functional Requirement but feed into ensuring that the system as a whole is working as intended.
+In the end, only one requirement, Non-functional Requirement \ref{req:easeofuse}, can be stated to have not been made due to insufficient evidence of the latter.
 
-% NFC
-satisfied \ref{req:NFCcorrect} and \ref{req:NFCtolerance}
-
-% Response Time
-satisfied \ref{req:reboot}, \ref{req:remoteTime}, \ref{req:startupTIme}, \ref{req:usable}
-
-% Misc Tests
-satisfied \ref{req:scalability}, \ref{req:remoteAuth}, \ref{req:audioPlayback}, \ref{req:remoteCon}
-
-\lipsum[37-38]
+The development of the project was directed through trial-and-error, which caused a level of uncertainty within the predefined plan. Based off each error and subsequent overcoming of each of them, the Author identified some key takeaways:
+\begin{itemize}
+    \item Planning needs to be more in depth. Having a rough plan helped provide structure but accounting for challenges, more buffer time should have been assigned, stricter deadlines should have been imposed to promote further efficient development and more thorough research into compatibility between components should have also been conducted and documented.
+    \item Working on embedded systems is tricky. Having only briefly interacted with single-board computers like the Raspberry Pi posed its own issues. Each peripheral and library need to be compatible and any blip within compatibility is not easy to identify.
+    \item Working with up-to-date peripherals is a must to prevent unnecessary troubleshooting. The GrovePi+, although appropriate for the use-case of this project, is outdated and has been discontinued by SeeedStudios. This lack of support made dealing with the system initially difficult, as it was not compatible with the most recent versions of Raspberry Pi OS. This then led to compromises being made in terms of features on the latest version of Raspberry Pi OS and potential security updates as well.
+\end{itemize}
 
 \section{Future work}\label{sec:future}
 % Next steps, open questions, and what you would do with more time or resources.
-satisfy \ref{req:easeofuse}
+With the basic implementation of the media player functioning, many avenues for future development and testing can be considered. One of the key features would be removing the reliance on an existing network. Whilst researching, it was identified that the Raspberry Pi 4 can act as a Access Point without Wi-Fi necessary \citep{excynimphica2024}. This development would be able to provide the following for the proposed solution:
+\begin{itemize}
+    \item A Static IP can be assigned to the Raspberry Pi without fear of it being overwritten via \gls{dhcp}.
+    \item An additional layer of security would be introduced through an isolated network, preventing attacks like the pivot attack gaining access to the main network, and a password placed onto this isolated network.
+    \item No Wi-Fi or existing network is necessary as the Raspberry Pi provides its own network to \gls{ssh} over.
+\end{itemize}
+
+Expanding the network capabilities to include \gls{wan}s could also be explored. This does pose a security risk of making a device vulnerable to the Internet at large but would provide the benefit of support being able to be administered from outside the \gls{lan} of the patient's dwelling. This would be targeted to the family of the patient, where they could reach out to the patient themselves and manage the device from outside the care facility, lightening the load for the carers in the facility.
+
+Providing the option of utilising Bluetooth and implementing a native speaker onto the device would also prove useful. Due to the speaker picked up for the project not being compatible with the Raspberry Pi itself, the utilisation of this module was abandoned, favouring Bluetooth connection instead. This reliance on Bluetooth assumes that the Bluetooth device is always charged and ready to accept the Bluetooth connection from the Raspberry Pi, which may not always be the case. Providing a native connection would remedy this as the speaker would be an integrated part of the system, would always receive power and is dedicated solely for the Raspberry Pi.
+
+Most importantly, user testing with the target demographic and main shareholders would be paramount and would help address Non-functional Requirement \ref{req:easeofuse}. Given more time, ethical approval would be submitted for review to potentially user test with dementia patients and/or their carers to gain valuable feedback on the operation of and potentially other features for the proposed solution. Should this not be possible, more outreach to research staff within the sector would occur instead, gaining feedback from them to further development.
+
+More intensive testing of the completed solution would also occur, if given more time. These tests would aim to address environmental variables (such as distance between \gls{nfc} tag and antenna, and distance from the Raspberry Pi itself and the accompanying \gls{ssh}ing computer) and network infrastructure (such as networks with varying amounts of coverage in terms of Access Points and download speed). These tests would be able to inform the performance of the proposed solution more conclusively, potentially exploring alternative components if any did not meet desired metrics.
+
+Lastly, documentation and guides would be written for the proposed solution. With all of the features implemented, the focus would be to create a maintained set of documentation to inform the care home staff about how to set up the device and how to operate it. In its current state, assistance from the Author would more than likely be required. The aim here would be to create sufficient documentation that set up and maintenance could be conducted independently.
 
 \subsection{AI Utilisation}\label{subsec:AIEval}
-\gls{llm}s were involved in the development process of this project and did generate code to assist with implementation through troubleshooting and brainstorming potential implementation avenues. The quality of the \gls{llm} generated code was acceptable but the Author took the upmost care to ensure that no line of code was without meaning, wasting resources which are typically scarce on single-board computers, such as the Raspberry Pi. 
+\gls{llm}s were involved in the development process of this project and did generate code to assist with implementation through troubleshooting and brainstorming potential implementation avenues. The quality of the \gls{llm} generated code was acceptable but the Author took the upmost care to ensure that no line of code was without meaning, wasting resources which are typically scarce on single-board computers, such as the Raspberry Pi. The positive experience with the generated code and proposed solutions to many troubleshooting problems made the Author consider to utilise \gls{llm}s again in future projects.
 
-\lipsum[39-40]
