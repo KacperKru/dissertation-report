@@ -14,51 +14,42 @@
 % -----------------------------------------------------------------------------
 % Chapter intro (no section): one short paragraph before the first \section
 % -----------------------------------------------------------------------------
-This chapter introduces the dissertation. It outlines the motivation and context for the work, the aims and objectives, the main contributions, and the structure of the remaining chapters. The following sections expand on each of these.
+Media Players are devices that focus on the delivery of music files, predominantly for leisure. Having a fondness for music, the Author aimed to make the playback of music as accessible as possible for the cognitively impaired, having a particular focus on patients with dementia, an umbrella term of diseases that impact cognitive ability.
 
 % -----------------------------------------------------------------------------
 % Motivation and context (typical first section)
 % -----------------------------------------------------------------------------
 % Use \section, \subsection, \label{key}. Refer with \ref{key} or \autoref{key}.
-
 \section{Motivation and context}\label{sec:motivation}
+Dementia is a syndrome that the Author has had experience with before through meeting an extended family member. Seeing the gravity of the mental degradation that can occur as a result of dementia, when the Author saw the opportunity to develop a solution for the betterment of the 'quality of life' for these patients, he immediately expressed interest. Being the first project the Author has done in the field of accessibility, the Author had much to learn and they were excited to do so.
+
+Doing preliminary research into media players, there did exist tailored devices for the cognitively impaired on the market already but none of these contained any form of remote management, which was a gap in the market the Author decided to tackle.
 
 % Aims and objectives (typical second section)
 % -----------------------------------------------------------------------------
 % Use \citep{} (parenthetical) or \citet{} (narrative), not \cite.
 
 \section{Aims and objectives}\label{sec:objectives}
-
-State the aim of your project and break it down into objectives. The following is a placeholder list (enumitem package: custom labels).
-
-\begin{enumerate}[label=\textbf{O\arabic*:}, leftmargin=*]
-  \item First objective: replace with your own.
-  \item Second objective.
-  \item Third objective.
+The aims and objectives of the project were as follows:
+\begin{enumerate}
+  \item Develop a tangible device that can be interacted with remotely which is able to play given media.
+  \item Engage with social care specialists and/or researchers in the field in a productive manner throughout the development of the device.
+  \item Ensure the device is simple to use, lowering the barrier of entry for the device.
+  \item Develop a secondary way of interaction with the device if time allows it.
 \end{enumerate}
-
-
 
 % -----------------------------------------------------------------------------
 % Dissertation structure / roadmap (typical final section of introduction)
 % -----------------------------------------------------------------------------
 
 \section{Dissertation structure}\label{sec:roadmap}
-
-Outline how the rest of the dissertation is organised so the reader knows what to expect. Reference chapters by label.
-
-The rest of this dissertation is organised as follows.
+The Dissertation you are about to read will have the following structure: 
 \begin{itemize}
   \item \textbf{Chapter~\ref{ch2}} (Background): context, related work, problem statement.
-  \item \textbf{Chapter~\ref{ch3}} (Methodology): research design, specification, AI/ML approach (if applicable), system design, implementation.
+  \item \textbf{Chapter~\ref{ch3}} (Methodology): research design, specification, system design, implementation.
   \item \textbf{Chapter~\ref{ch4}} (Results and Evaluation): setup, results, evaluation, limitations.
   \item \textbf{Chapter~\ref{ch5}} (Conclusions and Future Work): summary and next steps.
-  \item \textbf{Chapter~\ref{ch6}} (Reflection on Learning): transferable learning (omit if not required).
+  \item \textbf{Chapter~\ref{ch6}} (Reflection on Learning): transferable learning.
   \item \textbf{Appendix~\ref{app:supp}} and \textbf{Appendix~\ref{app:results}}: supplementary material and additional results.
 \end{itemize}
 
-Algorithms (algorithm, algpseudocode) appear in the List of Algorithms. Use \texttt{[t]} or \texttt{[!t]} for top placement like figures/tables. For code snippets use verbatim; for wide tables or figures use \texttt{\string
-\begin{sidewaystable}} or \texttt{\string
-  \begin{sidewaysfigure}} (rotating).\footnote{Footnote example. Captions and footnotes are set at least 11\,pt by the class.} Placeholder prose in other chapters uses \texttt{\string\lipsum[n]}. Example: \lipsum[1]
-
-    Use \texttt{\string\afterpage\{\string\clearpage\}} (afterpage) when you need to clear after the current page.
