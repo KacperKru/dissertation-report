@@ -10,12 +10,188 @@
 % \section as in main chapters. Replace with your own supplementary material.
 % =============================================================================
 
-This appendix contains supplementary material: extra tables, derivations, or notation. Replace with your own content.
-
+This appendix contains supplementary material: extra tables and results
 \section{Additional data}\label{app:data}
+% -------------------------------------------------------
+% Table 1: Load Script on Boot
+% -------------------------------------------------------
+\begin{table}[H]
+  \centering
+  \caption{Average Response Time for Load Script on Boot - Full}
+  \label{tab:avgResTimeFullLSB}
+  \begin{tabularx}{\linewidth}{XlXlX}
+    \toprule
+    Test Iteration & Time Taken (s) & Associated Requirement & Pass/Fail & Notes \\
+    \midrule
+    1 & 43 & Start-up Time - Non-functional & Pass & N/A \\
+    2 & 33 & Start-up Time - Non-functional & Pass & N/A \\
+    3 & 33 & Start-up Time - Non-functional & Pass & N/A \\
+    4 & 44 & Start-up Time - Non-functional & Pass & N/A \\
+    5 & 31 & Start-up Time - Non-functional & Pass & N/A \\
+    6 & 32 & Start-up Time - Non-functional & Pass & N/A \\
+    7 & 34 & Start-up Time - Non-functional & Pass & N/A \\
+    8 & 35 & Start-up Time - Non-functional & Pass & N/A \\
+    9 & 32 & Start-up Time - Non-functional & Pass & N/A \\
+    10 & 32 & Start-up Time - Non-functional & Pass & N/A \\
+    \bottomrule
+    AVERAGE & 34.9 & Start-up Time - Non-functional & Pass & N/A \\
+  \end{tabularx}
+\end{table}
 
-\lipsum[53-54]
+% -------------------------------------------------------
+% Table 2: Skip Time Execute
+% -------------------------------------------------------
+\begin{table}[H]
+  \centering
+  \caption{Average Response Time for Skip Time Execute - Full}
+  \label{tab:avgResTimeFullSTE}
+  \begin{tabularx}{\linewidth}{XlXlX}
+    \toprule
+    Test Iteration & Time Taken (s) & Associated Requirement & Pass/Fail & Notes \\
+    \midrule
+    1  & 0.147 & Command Execution Time - Non-functional & Pass & N/A \\
+    2  & 0.157 & Command Execution Time - Non-functional & Pass & N/A \\
+    3  & 0.138 & Command Execution Time - Non-functional & Pass & N/A \\
+    4  & 0.149 & Command Execution Time - Non-functional & Pass & N/A \\
+    5  & 0.136 & Command Execution Time - Non-functional & Pass & N/A \\
+    6  & 0.160 & Command Execution Time - Non-functional & Pass & N/A \\
+    7  & 0.152 & Command Execution Time - Non-functional & Pass & N/A \\
+    8  & 0.154 & Command Execution Time - Non-functional & Pass & N/A \\
+    9  & 0.106 & Command Execution Time - Non-functional & Pass & N/A \\
+    10 & 0.155 & Command Execution Time - Non-functional & Pass & N/A \\
+    \bottomrule
+    AVERAGE & 0.1454 & Command Execution Time - Non-functional & Pass & N/A \\
+  \end{tabularx}
+\end{table}
+ 
+% -------------------------------------------------------
+% Table 3: Pause Time Execute
+% -------------------------------------------------------
+\begin{table}[H]
+  \centering
+  \caption{Average Response Time for Pause Time Execute - Full}
+  \label{tab:avgResTimeFullPTE}
+  \begin{tabularx}{\linewidth}{XlXlX}
+    \toprule
+    Test Iteration & Time Taken (s) & Associated Requirement & Pass/Fail & Notes \\
+    \midrule
+    1  & 0.148 & Command Execution Time - Non-functional & Pass & N/A \\
+    2  & 0.142 & Command Execution Time - Non-functional & Pass & N/A \\
+    3  & 0.142 & Command Execution Time - Non-functional & Pass & N/A \\
+    4  & 0.146 & Command Execution Time - Non-functional & Pass & N/A \\
+    5  & 0.144 & Command Execution Time - Non-functional & Pass & N/A \\
+    6  & 0.148 & Command Execution Time - Non-functional & Pass & N/A \\
+    7  & 0.126 & Command Execution Time - Non-functional & Pass & N/A \\
+    8  & 0.131 & Command Execution Time - Non-functional & Pass & N/A \\
+    9  & 0.154 & Command Execution Time - Non-functional & Pass & N/A \\
+    10 & 0.153 & Command Execution Time - Non-functional & Pass & N/A \\
+    \bottomrule
+    AVERAGE & 0.1434 & Command Execution Time - Non-functional & Pass & N/A \\
+  \end{tabularx}
+\end{table}
+ 
+% -------------------------------------------------------
+% Table 4: Switch Time Execute
+% -------------------------------------------------------
+\begin{table}[H]
+  \centering
+  \caption{Average Response Time for Switch Time Execute - Full}
+  \label{tab:avgResTimeFullSwTE}
+  \begin{tabularx}{\linewidth}{XlXlX}
+    \toprule
+    Test Iteration & Time Taken (s) & Associated Requirement & Pass/Fail & Notes \\
+    \midrule
+    1  & 0.145 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz \\
+    2  & 0.154 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz \\
+    3  & 0.151 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz \\
+    4  & 0.141 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz \\
+    5  & 0.148 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz \\
+    6  & 0.135 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz \\
+    7  & 0.160 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz \\
+    8  & 0.108 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz \\
+    9  & 0.158 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz \\
+    10 & 0.137 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz \\
+    \bottomrule
+    AVERAGE & 0.1437 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz \\
+  \end{tabularx}
+\end{table}
+ 
+% -------------------------------------------------------
+% Table 5: Switch Time Execute w/ Shuffle
+% -------------------------------------------------------
+\begin{table}[H]
+  \centering
+  \caption{Average Response Time for Switch Time Execute with Shuffle - Full}
+  \label{tab:avgResTimeFullSwTES}
+  \begin{tabularx}{\linewidth}{XlXlX}
+    \toprule
+    Test Iteration & Time Taken (s) & Associated Requirement & Pass/Fail & Notes \\
+    \midrule
+    1  & 0.126 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz true \\
+    2  & 0.152 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz true \\
+    3  & 0.152 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz true \\
+    4  & 0.159 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz true \\
+    5  & 0.147 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz true \\
+    6  & 0.144 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz true \\
+    7  & 0.150 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz true \\
+    8  & 0.153 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz true \\
+    9  & 0.132 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz true \\
+    10 & 0.157 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz true \\
+    \bottomrule
+    AVERAGE & 0.1472 & Command Execution Time - Non-functional & Pass & Command Used: python3 client.py switch jazz true \\
+  \end{tabularx}
+\end{table}
+ 
+% -------------------------------------------------------
+% Table 6: Switch Time Execute Big Playlist
+% -------------------------------------------------------
+\begin{table}[H]
+  \centering
+  \caption{Average Response Time for Switch Time Execute Big Playlist - Full}
+  \label{tab:avgResTimeFullSwTEBP}
+  \begin{tabularx}{\linewidth}{XlXlX}
+    \toprule
+    Test Iteration & Time Taken (s) & Associated Requirement & Pass/Fail & Notes \\
+    \midrule
+    1  & 0.164 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist \\
+    2  & 0.151 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist \\
+    3  & 0.139 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist \\
+    4  & 0.139 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist \\
+    5  & 0.143 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist \\
+    6  & 0.159 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist \\
+    7  & 0.103 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist \\
+    8  & 0.142 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist \\
+    9  & 0.135 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist \\
+    10 & 0.141 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist \\
+    \bottomrule
+    AVERAGE & 0.1416 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist \\
+  \end{tabularx}
+\end{table}
+ 
+% -------------------------------------------------------
+% Table 7: Switch Time Execute Big Playlist w/ Shuffle
+% -------------------------------------------------------
+\begin{table}[H]
+  \centering
+  \caption{Average Response Time for Switch Time Execute Big Playlist with Shuffle - Full}
+  \label{tab:avgResTimeFullSwTEBPS}
+  \begin{tabularx}{\linewidth}{XlXlX}
+    \toprule
+    Test Iteration & Time Taken (s) & Associated Requirement & Pass/Fail & Notes \\
+    \midrule
+    1  & 0.144 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist true \\
+    2  & 0.153 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist true \\
+    3  & 0.131 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist true \\
+    4  & 0.099 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist true \\
+    5  & 0.160 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist true \\
+    6  & 0.152 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist true \\
+    7  & 0.153 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist true \\
+    8  & 0.156 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist true \\
+    9  & 0.104 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist true \\
+    10 & 0.158 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist true \\
+    \bottomrule
+    AVERAGE & 0.1410 & Scalable - Non-functional & Pass & Command Used: python3 client.py switch bigplaylist true \\
+  \end{tabularx}
+\end{table}
 
-\section{Further details}\label{app:details}
 
-\lipsum[55-56]

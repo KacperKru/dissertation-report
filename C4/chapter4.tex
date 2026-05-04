@@ -11,16 +11,16 @@
 % critically appraise strengths and weaknesses.
 % =============================================================================
 
-\newthought{Tests within a system design project} are inevitable, as they dictate if a project was successful in its aims and has met its requirements. This section will demonstrate what tests were designed for the solution, the results drawn from these tests and will provide an analysis of the project as a whole.
+\newthought{Tests within a system design project} are inevitable, as they dictate if a project was successful in its aims and has met its requirements. This section will demonstrate what tests were designed for the solution, the results drawn from these tests and provide an analysis of the project as a whole.
 
 \section{Setup}\label{sec:setup}
 % Evaluation setup: data, metrics, baselines, how experiments or tests were run.
 % Optional subsections: environment, hyperparameters, evaluation protocol.
-Being a combination of a physical device and a software solution, different types of testing had to occur to fully evaluate the performance and accuracy of the solution. The testing conducted was a combination of unit testing and system testing. 
+Being a combination of a physical device and a software solution, different types of testing had to occur to fully evaluate performance and accuracy of operation. The testing conducted was a combination of unit testing and system testing. 
 
-Unit testing was utilised for the modules that can be tested automatically using the \texttt{unit\_test} module in Python. These unit tests can be seen in Algorithms \ref{alg:socketTest} and \ref{alg:playlistTest}. These unit tests also ensured that the shuffle function was called to test if shuffle was passed, the playlist was in fact shuffled.
+Unit testing was utilised for the modules that can be tested automatically using the \texttt{unit\_test} module in Python, testing valid inputs and function calls. These unit tests can be seen in Algorithms \ref{alg:socketTest} and \ref{alg:playlistTest}.
 
-\begin{algorithm}[!h]
+\begin{algorithm}[H]
   \caption{socketCommand\_Test - Python}
   \label{alg:socketTest}
   \begin{lstlisting}[language=Python]
@@ -66,7 +66,7 @@ Unit testing was utilised for the modules that can be tested automatically using
   \end{lstlisting}
 \end{algorithm}
 
-\begin{algorithm}[!h]
+\begin{algorithm}[H]
   \caption{loadPlaylist\_Test - Python}
   \label{alg:playlistTest}
   \begin{lstlisting}[language=Python]
@@ -103,11 +103,9 @@ Unit testing was utilised for the modules that can be tested automatically using
 \end{algorithm}
 \clearpage
 
-System tests were used for the hardware components of the proposed solution, in this case if the button presses are recognised and audio playing from the correct Bluetooth speaker. The system tests produce results that can be observed but require human interaction, hence why unit tests through Python's \texttt{unittest} module cannot be applied.
+System tests were used for the hardware components of the proposed solution, in this case if the button presses are recognised and audio playing from the correct Bluetooth speaker. The system tests produce results that can be observed but required human interaction to produce, hence why automated unit tests could not be conducted.
 
-The baselines and acceptance criteria for these tests were derived from the functional and non-fuctional requirements, presented in section \ref{sec:spec}.
-
-Testing of the \gls{nfc} module and its reliability was conducted through the use of amending the existing function, documenting:
+Testing of the \gls{nfc} module and its reliability were conducted through amending the existing \texttt{nfc\_reader\_switch()} function, having it document:
 \begin{itemize}
   \item How many attempts to scan a \gls{nfc} tag have been made.
   \item How many attempts were successful and switched playlists as intended.
@@ -115,7 +113,7 @@ Testing of the \gls{nfc} module and its reliability was conducted through the us
 
 This was done by creating counters in the form of a list (as they are mutable) that was updated throughout execution. For the function to gain access to these counters, they were passed as arguments and the appropriate \texttt{threading} call was amended to reflect this change. These amendedments can be seen in Algorithms \ref{alg:globalCounters}, \ref{alg:testNFCSwitch} and \ref{alg:NFCReaderCallAmend}.
 
-\begin{algorithm}[!h]
+\begin{algorithm}[H]
   \caption{Counters for \gls{nfc} Test Snippet - Python}
   \label{alg:globalCounters}
   \begin{lstlisting}[language=Python]
@@ -138,7 +136,7 @@ This was done by creating counters in the form of a list (as they are mutable) t
   \end{lstlisting}
 \end{algorithm}
 
-\begin{algorithm}[!h]
+\begin{algorithm}[H]
   \caption{Amended nfc\_reader\_switch() with counter parameters - Python}
   \label{alg:testNFCSwitch}
   \begin{lstlisting}[language=Python]
@@ -172,7 +170,7 @@ This was done by creating counters in the form of a list (as they are mutable) t
   \end{lstlisting}
 \end{algorithm}
 
-\begin{algorithm}[!h]
+\begin{algorithm}[H]
   \caption{\texttt{threading} call amendment for \gls{nfc} Testing - Python}
   \label{alg:NFCReaderCallAmend}
   \begin{lstlisting}[language=Python]
@@ -182,17 +180,18 @@ This was done by creating counters in the form of a list (as they are mutable) t
         threading2.start()
   \end{lstlisting}
 \end{algorithm}
-\newpage
 Some preliminary logistical groundwork was also undertaken with the potential of user testing with care home staff with the assistance of ENRICH Cymru. This working relationship was established through visiting a conference with researchers in the field of care home, hosted by Stuart Allen, the project supervisor. Interest was expressed from ENRICH, however complications occurred during application for ethical approval. User testing therefore had to be abandoned for the project to continue ethically, as no response was given in time.
+
+The baselines and acceptance criteria for these tests were derived from the functional and non-fuctional requirements, presented in section \ref{sec:spec}.
 \section{Results}\label{sec:results}
 % Main findings: present tables and figures; summarise key outcomes. Optional
 % subsections: by research question, by dataset, or by metric.
 The results of the test conducted for each component will be split up into corresponding sub-sections with their appropriate figures and test data. In summary, all of the unit tests and system tests passed. This was largely due to the testing spearheading development, encouraging error checking throughout to keep the system as reliable as possible.
 
 \subsection{Terminal Command Testing Results}\label{subsec:terminalResults}
-This module was evaluated using unit tests to see if the appropriate output was returned through the terminal. As seen in algorithm \ref{alg:socketTest}, each possible command bar the \texttt{exit} command has been set up as an automatic test, as the \texttt{exit} command was tested in isolation. Results of the tests are seen in Table \ref{tab:terminalResults}
+This function was evaluated using unit tests to see if the appropriate output was returned through the terminal. As seen in algorithm \ref{alg:socketTest}, each possible command bar the \texttt{exit} command has been set up as an automatic test, as the \texttt{exit} command was tested in isolation. Results of the tests are seen in Table \ref{tab:terminalResults}
 
-\begin{table}[!h]
+\begin{table}[H]
   \centering
   \caption{Terminal Commands Testing Table}
   \label{tab:terminalResults}
@@ -216,9 +215,9 @@ This module was evaluated using unit tests to see if the appropriate output was 
 All of the results returned a pass with handling all the types of data that could be passed into the terminal.
 \clearpage
 \subsection{Button Interaction Testing Results}\label{subsec:btnResults}
-This module was evaluated using system tests as human input was necessary so automated unit tests were impractical to enact. The results for these tests can be seen in Table \ref{tab:buttonResults}.
+This function was evaluated using system tests as human input was necessary so automated unit tests were impractical to enact. The results for these tests can be seen in Table \ref{tab:buttonResults}.
 
-\begin{table}[!h]
+\begin{table}[H]
   \centering
   \caption{Button Interaction Testing Table}
   \label{tab:buttonResults}
@@ -234,11 +233,11 @@ This module was evaluated using system tests as human input was necessary so aut
     \bottomrule
   \end{tabular}
 \end{table}
-All of these system tests returned a pass with all of the documented button interactions, including inputs from mismatched port numbers. 
+All of these system tests returned a pass for all of the documented button interactions, including inputs from mismatched port numbers. 
 
 \subsection{Loading Playlist Testing Results}\label{subsec:playlistResults}
 Being a self-contained function that did not require human interaction during its testing process, \texttt{load\_playist()} was a perfect candidate for the Python \texttt{unittest} module. The preconstructed unit tests attempts to load the \texttt{default} playlist with and without the \texttt{shuffle} parameter present. The results can be seen in Table \ref{tab:loadPlaylistTest}.
-\begin{table}[!h]
+\begin{table}[H]
   \centering
   \caption{load\_playlist() Testing Table}
   \label{tab:loadPlaylistTest}
@@ -255,11 +254,11 @@ Being a self-contained function that did not require human interaction during it
     \bottomrule
   \end{tabular}
 \end{table}
-All of the unit tests for this function were able to pass, demonstrating how the function is to behave. 
+All of the unit tests for this function were able to pass, demonstrating how the function is supposed to behave. 
 \subsection{NFC System Testing Results}\label{subsec:NFCResults}
-The \gls{nfc} module also required human interaction during the testing process so was subject to system tests, instead of unit tests. The process of the test was to leave a \gls{nfc} tag onto the antenna for 100 cycles of scanning the tag and see what percentage scans were successful. The results of this test are visible in Table \ref{tab:NFCScanResults}
+The \gls{nfc} module also required human interaction during the testing process so was subject to system tests. The process of the test was to leave a \gls{nfc} tag onto the antenna for 100 cycles of scanning the tag and see what percentage scans were successful. The results of this test are visible in Table \ref{tab:NFCScanResults}
 \clearpage
-\begin{table}[!h]
+\begin{table}[H]
   \centering
   \caption{\gls{nfc} Scan Robustness Testing Data}
   \label{tab:NFCScanResults}
@@ -277,10 +276,12 @@ The \gls{nfc} module also required human interaction during the testing process 
 All of these preregistered \gls{nfc} tags were read at a 100\% success rate and enacted their appropriate playlist switch each time they were scanned.
 
 \subsection{Response Time Testing Results}\label{subsec:execTimeResults}
-Response Times for various components (including scalability of the playlists sizes) of the proposed solution were tested using either a stopwatch as execution occurred (in the case of time taken for the main script to be ran at boot, denoted by the predefined speaker playing the first song) or utilising the \texttt{time} command on Linux and taking the \texttt{real} value, as it represents the real time between invocation and execution. 
+Response Times for various components of the proposed solution were tested using either a stopwatch as execution occurred or utilising the \texttt{time} command on Linux and taking the \texttt{real} value, as it represents the real time between invocation and execution. 
 
-Scalability was tested through a larger playlist named \texttt{bigplaylist} that contained three times the amount of songs in comparison to the three playlists created through development. The detailed timings for each of these can be seen in the appendix \ref{app:results} but an abridged version containing the averages can be seen in Table \ref{tab:avgResTime}.
-\begin{table}[!h]
+The stopwatch method was used to test time taken for the main script to be run at boot, denoted by the predefined speaker playing the first song. In this instance, evoking \texttt{time} would not be optimal as the script isn't intended to terminate, rather run continuously playing music.
+
+Scalability and its subsequent impact on response time was tested through a larger playlist named \texttt{bigplaylist} that contained three times the amount of songs in comparison to the three test playlists created through development. The detailed timings for each of these can be seen in the appendix \ref{app:results} but an abridged version containing the averages can be seen in Table \ref{tab:avgResTime}.
+\begin{table}[H]
   \centering
   \caption{Average Response Time for Components}
   \label{tab:avgResTime}
@@ -304,13 +305,13 @@ On average, terminal code execution took approximately 0.144s to execute. Includ
 \subsection{Security Testing Results}\label{subsec:secureResults}
 Lastly, the final component to be tested through system testing was the remote solutions authentication methods. Here, two users attempt to connect to the proposed solution using made-up credentials and are not allowed access to the \gls{ssh} terminal, pictured in Figures \ref{fig:noUser1} and \ref{fig:noUser2}.
 
-\begin{figure}[!h]
+\begin{figure}[H]
   \centering
   \fbox{\rule{0pt}{3.7cm}\includegraphics[width=0.97\textwidth]{images/nouser1}}
   \caption[Incorrect Credentials]{Incorrect Credentials - user 'kacper'}\label{fig:noUser1}
 \end{figure}
 
-\begin{figure}[!h]
+\begin{figure}[H]
   \centering
   \fbox{\rule{0pt}{3.5cm}\includegraphics[width=0.97\textwidth]{images/nouser2}}
   \caption[Incorrect Credentials]{Incorrect Credentials - user 'nate'}\label{fig:noUser2}
@@ -324,20 +325,20 @@ As the users are not able to access the \gls{ssh} terminal with incorrect creden
 This section will address the strengths and weaknesses of the proposed solution, highlighting methodological choices and why they were chosen along the way.
 
 \subsection{Strengths}\label{subsec:strengths}
-The proposed solution throughout was testing was largely successful. One of the key strengths that helped contribute to the systems success was reliably being able to connect to the system remotely. As demonstrated through testing, the system is able to be interfaced with and managed entirely remotely, with no necessary physical interaction. The commands sent through the remote interface are fast and execute all the necessary actions a media player requires. The remote solution is also not limited to just a Command Line Interface, as users are able to connect using \gls{vnc} if they prefer a graphical interface. This directly addresses the main objective of the remote management for the system and through testing, it is strongly suggested that the system is efficient with its remote communication.
+The proposed solution throughout was testing was largely successful. One of the key strengths that helped contribute to the systems success was reliably being able to connect to the system remotely. As demonstrated through testing, the system is able to be interfaced with and managed entirely remotely, with no necessary physical interaction. The commands sent through the remote interface are fast and execute all the necessary actions a media player requires. The remote solution is also not limited to just a Command Line Interface, as users are able to connect using \gls{vnc} if they prefer a graphical interface for file management. This directly addresses the main objective of the remote management for the system and through testing, it is strongly suggested that the system is efficient with its remote communication.
 
-Simplicity in its physical implementation strengths the belief the system is successful. As backed by research conducted in section \ref{subsec:medContext} and the informal chat with ENRICH Cymru, this was the most important aspect of the implementation. The system provides a simple \gls{ui} through its remote solution, but omits one through its hardware, presenting only two simple buttons to perform two simple actions. Avoiding over-complicating the device ensured that the main stakeholders were still the focus throughout development, creating a truly tailored solution for the cognitively impaired.
+Simplicity in its physical implementation strengthens the belief the system is successful. As backed by research conducted in section \ref{subsec:medContext} and the informal chat with ENRICH Cymru, this was the most important aspect of the implementation. The system provides a simple \gls{ui} through its remote solution, but omits one through its hardware, presenting only two simple buttons to perform two simple actions. Avoiding over-complicating the device ensured that the main stakeholders were still the focus throughout development, creating a truly tailored solution for the cognitively impaired.
 
-Finally, the system addresses an important aspect of life that may be missed in assistive technologies for the cognitively impaired, especially patients with dementia. The neglect of making leisure accessible is apparent, considering the positive impact that it has on the mental wellbeing of dementia patients. The focus on delivering music in an accessible manner tackles this unexplored market of accessible technologies and provides a proof of concept that technology can be designed with accessibility embedded in its development. This is a strength as it highlights a disparity within the field of assistive technologies focusing mostly on care and extending 'quantity of life', rather than 'quality of life'.  
+Finally, the system addresses an important aspect of life that may be missed in assistive technologies for patients with dementia. The neglect of making leisure accessible is apparent, considering the positive impact that it has on the mental wellbeing of dementia patients. The focus on delivering music in an accessible manner tackles this unexplored area  of the market and provides a proof of concept that technology meant for leisure can be designed with accessibility embedded in its development. This is a strength as it highlights a disparity within the field of assistive technologies focusing mostly on care and extending 'quantity of life', rather than 'ease of living'.  
 
 \subsection{Weaknesses}\label{subsec:weaknesses}
-The proposed solution is not without its flaws. For instance, although the system is intended to run completely offline, it does require a constant internet connection to be able to interface with it remotely, either through \gls{ssh} or \gls{vnc}. The alternative would be to manage the system offline but this would require a constant keyboard, mouse and monitor to be connected to the device. This could be mitigated if given more time and resources but the current state of the proposed solution requires a constant internet connection.
+The proposed solution is not without its flaws. For instance, although the system is intended to run completely offline, it does require a constant internet connection to be able to interface with it remotely, either through \gls{ssh} or \gls{vnc}. The alternative would be to manage the system offline but this would require a constant keyboard, mouse and monitor to be connected to the device. This could be mitigated if given more time and resources.
 
-Being a device tailored towards simplicty, the inital setup of the device is complex and does require a level of technical knowledge to enact. Should the proposed solution come packaged with the correct prerequisites, a mouse, keyboard and monitor are still required to ensure that the device can be connected to a new network to enable remote management. Connection to this new network then imposes its own \gls{dhcp} protocol onto the proposed solution and assigns it a new IP address. Even if a static IP address was assigned beforehand, there is no guarantee that the IP address hasn't already been taken by another device or if the device used to \gls{ssh} onto the proposed solution is in the same subnet and can contact the proposed solution. This could as well be mitigated if given more time and resources.
+Being a device tailored towards simplicty, the inital setup of the device is complex and does require a level of technical knowledge to set up. Should the proposed solution come packaged with the correct prerequisites, a mouse, keyboard and monitor are still required to ensure that the device can be connected to a new network to enable remote management. Connection to this new network then imposes its own \gls{dhcp} protocol onto the proposed solution and assigns it a new IP address. Even if a static IP address was assigned beforehand, there is no guarantee that the IP address has not already been taken by another device or if the device used to \gls{ssh} onto the proposed solution is in the same subnet and can contact the proposed solution. This could as well be mitigated if given more time and resources.
 
-Finally, \gls{nfc}, one of the main features and methods of interaction, requires a level of setup that isn't intuitive. This is primarily due to a lack of testing on alternatives, however, there only exists one supported way of writing to the \gls{nfc} tags. The script on the Arduino must be switched to an alternative writing script and then switched back to the reading script before the \gls{nfc} functionality is restored to the proposed solution. The switching of the scripts requires a separate device that has access to the Arduino IDE and the accompanying Arduino library that contains the functionality to interface with PN532 devices, that being the \gls{nfc} module. This would have to occur each time a new playlist (or if the playlist is to be shuffled or not) has been added to the proposed solution if the user wishes for all the playlists to be available using \gls{nfc}. This undermines the simplicity of the device if such intricate setup processes are necessary beforehand. 
+Finally, \gls{nfc}, one of the main features and methods of interaction, requires a level of setup that isn't intuitive. This is primarily due to a lack of testing on alternatives, however, there only exists one supported way of writing to the \gls{nfc} tags. The script on the Arduino must be switched to an alternative writing script and then switched back to the reading script before the \gls{nfc} functionality is restored to the proposed solution. The switching of the scripts requires a separate device that has access to the Arduino IDE and the accompanying Arduino library that contains the functionality to interface with PN532 devices. This would have to occur each time a new playlist (or if the playlist is to be shuffled or not) has been added to the proposed solution if the user wishes for all the playlists to be available using \gls{nfc}. This undermines the simplicity of the device if such intricate setup processes are necessary beforehand. 
 
 \subsection{Methodology Choices}\label{subsec:methodology}
-The project was completed utilising a Waterfall Methodology throughout its development. This was set out by the inital plan that was completed prior to the start of this project, where clear deliverables were identified and milestones generated. Each feature was developed in a vacuum week by week in its entirety until it was integrated into the system at large. This methodology did remain flexible to allow for buffers between features if development took longer than expected or bugs were identified within the modules.
+The project was completed utilising a Waterfall Methodology throughout its development. This was set out by the inital plan that was completed prior to the start of this project, where clear deliverables were identified and milestones generated. Each feature was developed in a vacuum, week by week, in its entirety until it was integrated into the system at large. This methodology did remain flexible to allow for buffers between features if development took longer than expected or bugs were identified within the components.
 
-The predictability within the Waterfall Model was beneficial as it helped keep discussions with the project supervisor directed, it ensured that each week quantifiable progress can be observed and time could be effectively managed based on progress as each feature was given a predetermined time slot that was open for alteration.
+The predictability within the Waterfall Model was beneficial as it helped keep discussions with the project supervisor directed. It also ensured that, each week, quantifiable progress can be observed and time could be effectively managed based on progress as each feature was given a predetermined time slot that was open for alteration.
