@@ -137,137 +137,62 @@ For the sake of simplicity, the decision to include workers was also scrapped. H
 
 \section{Implementation}\label{sec:impl}
 % Realisation: key implementation choices and critical code; avoid describing every module. Optional: tools, platform, problems encountered.
+The goal of the implementation was to create each feature of the proposed solution one at a time, ensuring each feature worked in isolation before it was implemented to the system at large. The device was prepped with the prerequisites for working with the given peripherals and the following features were developed in order:
+\begin{itemize}
+    \item Button interaction was developed for the Grove LED Buttons.
+    \item Music Player functionality was mapped to the buttons.
+    \item Terminal interaction was developed through Python Sockets.
+    \item Start-up behaviour was configured and scripts amended to accommodate it.
+    \item \gls{nfc} interaction was developed on an Arduino and integrated into the system.
+\end{itemize} 
+
 \subsection{Initial Setup}\label{subsec:setup}
-One of the main problems that was encountered during the development of this project was simply setting up the Raspberry Pi. The components that were utilised in this project are the same as those in the CM2211 specification \citep{Perera2025} but the components required setup for this project. The main milestone here was to have the Raspberry Pi be in a workable state to begin development.
+Producing a device that has been designed for mass rollout, a consistent and stable development environment was of paramount importance. It needed to be reproducible, so all units could have the same underlining technologies, and able to communicate with the modules used to interface with the device. To achieve this goal, all the appropriate libraries for the GrovePi library to work were installed on the most current image that supported the peripherals.
 
-Working with specialised embedded systems, it was paramount that each component in the system is compatible to one another. Incompatibilities throughout development ranged from deprecated libraries within an older OS version, such as \texttt{easy\_install} in Figure \ref{fig:easyinstall}, to the OS kernel itself and the underlying frameworks for communication over the \gls{i2c} interface \citep{IOTGarage2025}. Learning through these tribulations, many decisions about the underlining software for the solution had to be undertaken, as any mismatch could pose as a roadblock that is not immediately obvious to the developer.
+Incompatibilities throughout development helped inform this choice. They ranged from deprecated libraries within an older OS version, such as \texttt{easy\_install}, to the OS kernel itself and the underlying frameworks for communication over the \gls{i2c} interface \citep{IOTGarage2025}.
 
-\begin{figure}[H]
-    \centering
-    \begin{lstlisting}[language=Python]
-    Traceback (most recent call last):
-    File "/usr/lib/python3/dist-packages/setuptools/sandbox.py", 
-    line 156, in save_modules
-        yield saved
-    File "/usr/lib/python3/dist-packages/setuptools/sandbox.py", 
-    line 198, in setup_context
-        yield
-    File "/usr/lib/python3/dist-packages/setuptools/sandbox.py", 
-    line 259, in run_setup
-        _execfile(setup_script, ns)
-    File "/usr/lib/python3/dist-packages/setuptools/sandbox.py", 
-    line 46, in _execfile
-        exec(code, globals, locals)
-    File "/tmp/easy_install-ex5g9mab/smbus-cffi-0.5.1/setup.py", 
-    line 17, in <module>
-        Permission is hereby granted, free of charge, to any
-        person obtaining a copy
-    \end{lstlisting}
-    \caption[Traceback - easy\_install]{Traceback Snippet - easy\_install identification}\label{fig:easyinstall}
-\end{figure}
-
-The GrovePi+ itself and its accompanying software and libraries helped identify each of these dependencies. After a series of OS re-images, more incompatibilities were made apparent. This went on to highlight the importance of the development environment as a whole, rather than in terms of package incompatibilities. This was largely due to the GrovePi+ also being a peripheral that has since been discontinued \citep{PiHut} so continued support from the manufacturer had ceased at the time of the development of the proposed solution.
-
-The importance of the open-source community became apparent as the kernel incompatibility \citep{cyclicalobsessive2024} and countless other nuances (such as lacking appropriate public keys for \texttt{apt update} \citep{Jean2026} and outdated source lists in \texttt{/etc/apt/sources.list} in Figures \ref{fig:eolurl} and \ref{fig:sourceslist} \citep{rpdom2026}) were identified through community driven web-forums.
-
-\begin{fullwidthfigure}[H]
-  \centering
-  \fbox{\rule{0pt}{4cm}\includegraphics[width=0.97\linewidth]{images/EOLURL}}
-  \caption[End of Life URL]{End of Life URL - package installation incomplete}\label{fig:eolurl}
-\end{fullwidthfigure}
-\newpage
-
-\begin{fullwidthfigure}[H]
-  \centering
-  \fbox{\rule{0pt}{3cm}\includegraphics[width=0.97\linewidth]{images/sourceslist}}
-  \caption[Amended source.list]{Amended source.list}\label{fig:sourceslist}
-\end{fullwidthfigure}
-
-Reliance on proprietary installation methods from developers such as Dexter Industries \citep{DexterIndustriesGrovePi2026} also highlighted nuances of working with outdated solutions where usernames can pose an issue with installation of the libraries and necessary scripts, as can be seen in Figure \ref{fig:baduser}.
-
-\begin{figure}[H]
-  \centering
-  \fbox{\rule{0pt}{4cm}\includegraphics[width=0.97\textwidth]{images/IncorrectUser}}
-  \caption[Incorrect Username]{Incorrect Username - require user 'pi'}\label{fig:baduser}
-\end{figure}
+The GrovePi+ itself and its accompanying software and libraries helped identify each of these dependencies. Correct Raspberry Pi OS image choice went on to highlight the importance of the development environment as a whole, rather than in terms of package incompatibilities. This was largely due to the GrovePi+ also being a peripheral that has since been discontinued \citep{PiHut} so continued support from the manufacturer had ceased at the time of the development of the proposed solution.
 
 The pre-configured image provided by Dexter Industries for the GoPiGo family of robots was considered as a potential candidate for the operating system \citep{DexterIndustriesGoPiGo2026} but after examining the image, it was not suitable for the use case, being bloated with unnecessary applications and local web server hosting that would waste system resources when running idle.
 
-This eventually led to the decision of following the guide provided by IOT Garage \citep{IOTGarage2025} and the installation of the \texttt{2024-10-22-raspios-bullseye} image, which is the current image on the proposed solution. This provided a compromise for currency of the image and having the appropriate OS kernel and \gls{i2c} communication framework. The only deviation from the guide is the copying of both the \texttt{di\_i2c} and \texttt{di\_mutex} modules (they both depend on each other) into the Python 3.9 directory, as seen in Figure \ref{fig:workinggpi}.
+The importance of the open-source community helped drive the image choice as the kernel incompatibility \citep{cyclicalobsessive2024} and countless other nuances of other images (such as lacking appropriate public keys for \texttt{apt update} \citep{Jean2026} and outdated source lists in \texttt{/etc/apt/sources.list} \citep{rpdom2026}) were identified through community driven web-forums.
 
+The decision to follow a guide provided by IOT Garage \citep{IOTGarage2025} and the installation of the \texttt{2024-10-22-raspios-bullseye} image was made, which is the current image on the proposed solution. This provided a compromise for currency of the image and having the appropriate OS kernel and \gls{i2c} communication framework. The only deviation from the guide is the copying of both the \texttt{di\_i2c} and \texttt{di\_mutex} modules (they both depend on each other) into the Python 3.9 directory.
 \begin{fullwidthfigure}[H]
   \centering
   \fbox{\rule{0pt}{2cm}\includegraphics[width=0.97\linewidth]{images/workinggpi}}
   \caption[Movement of Modules and Test grovepi call]{Movement of Modules and Test grovepi call}\label{fig:workinggpi}
 \end{fullwidthfigure}
 
-The initial setup was now complete and development of the solution could commence. Although time-consuming, the initial setup helped highlight the idiosyncrasies of working on embedded systems.
+The initial setup was now complete and development of the solution could commence. Although time-consuming, the initial setup helped highlight the idiosyncrasies of working on embedded systems. In a final system, working with peripherals that interfaced directly with the Raspberry Pi's \gls{gpio} pins would be prioritised instead. This would mitigate software dependencies as no third-party libraries would be necessary for interfacing with all of the peripherals, as the core library \texttt{GPIOZero} comes pre-installed on the latest Raspberry Pi Images \citep{bennuttal2024}. 
 
 \subsection{Button Interaction}\label{subsec:btnint}
-The proposed solution's main form of interaction is that of button presses on the Raspberry Pi. Once the GrovePi library was installed, development commenced on recognising the button presses.
+The proposed solution's main form of interaction is that of button presses on the Raspberry Pi. Once the GrovePi library was installed, focus was put on ensuring that button presses were recognised by the main Python script, using the GrovePi library.
 
-Many of the Grove peripherals contained 2 ports in terms of addressing them and their properties. Working with these peripherals helped highlight how each proprietary module may have its own numbering convention on which port is assigned to what attribute of the peripheral. This was pivotal in the case of the Grove LED buttons where the addressing of the inputs was \textbf{offset by 1}. This was identified through the testing of the original port numbers, in algorithm \ref{alg:badBtnTest} and introducing the offset in algorithm \ref{alg:goodBtnTest}.
+Many of the Grove peripherals contained 2 ports in terms of addressing them and their properties. Working with these peripherals helped highlight how each proprietary module may have its own numbering convention on which port is assigned to what attribute of the peripheral. This was pivotal in the case of the Grove LED buttons where the addressing of the inputs was \textbf{offset by 1}. This was identified through the testing of the original port number and introducing the offset in algorithm \ref{alg:goodBtnTest}.
 
 \begin{algorithm}[H]
-    \caption{Unsuccessful Button Port Test - Python}
-    \label{alg:badBtnTest}
+    \caption{Successful Button Port Test - Python}
+    \label{alg:goodBtnTest}
     \begin{lstlisting}[language=Python]
     import time
     import grovepi
 
-    buttonP_pin = 2
-    buttonS_pin = 7
+    buttonP_pin = 3 # Port number + 1 recognises button input
+    buttonS_pin = 8
 
     grovepi.pinMode(buttonP_pin, "INPUT")
     grovepi.pinMode(buttonS_pin, "INPUT")
 
     print("Ready!")
-
-    buttonP_was_pressed = False
-    buttonS_was_pressed = False
-
-    try:
-        while True:
-            buttonP_state = grovepi.digitalRead(buttonP_pin)
-            buttonS_state = grovepi.digitalRead(buttonS_pin)
-            if buttonP_state == 0 and not buttonP_was_pressed:
-                print("Button Play pressed!")
-                buttonP_was_pressed = True
-
-            elif buttonP_state == 1 and buttonP_was_pressed:
-                print("Button Play released!")
-                buttonP_was_pressed = False
-                
-            if buttonS_state == 0 and not buttonS_was_pressed:
-                print("Button Skip pressed!")
-                buttonS_was_pressed = True
-
-            elif buttonS_state == 1 and buttonS_was_pressed:
-                print("Button Skip released!")
-                buttonS_was_pressed = False
-
-            time.sleep(0.05)
-
-    except KeyboardInterrupt:
-        print("\nExiting.")
     \end{lstlisting}
 \end{algorithm}
-
-\begin{algorithm}[H]
-    \caption{Successful Button Port Test Ammendment - Python}
-    \label{alg:goodBtnTest}
-    \begin{lstlisting}[language=Python]
-        buttonP_pin = 3 # For some odd reason, the port number + 1 recognises the appropriate button
-        buttonS_pin = 8
-    \end{lstlisting}
-\end{algorithm}
-
-This provided valuable input that peripherals, although their port numbers seem overt on the given embedded system (highlighted by the numbering on the GrovePi+ shield), may contain other hidden port numbers that control the output of the peripherals as well, as was the case with the Grove LED buttons. 
+The offset identified was counterintuitive, as the labeling on the GrovePi+ shield was sequential, but the address for the button input was one higher. This quirk was not accurately described in the documentation provided the manufacturer and could cause potential issues with peripherals connected sequentially. 
 
 \subsection{Music Player Functionality}\label{subsec:playlist}
-Once the button presses were being recognised, music player functionality could now be implemented. On the image used on the proposed solution, the default media player was VLC. 
+Once the button presses were being recognised, music player functionality was implemented. This would include mapping button presses to their appropriate actions and loading a scalable playlist with a series of music files, with the possibility to shuffle them.
 
-The python-vlc package was then installed to interface with it and have VLC act as the media player for the proposed solution, due to its universality of outputting various media files, open-source nature and convenience provided by not installing an alternative. Adaptations were made to the main script to map python-vlc's functions to the appropriate button presses, present in Algorithms \ref{alg:initVLC} and \ref{alg:mappedBtnPress}.
+The python-vlc package was installed to interface with VLC, which acted as the media player for the proposed solution. It was chosen due to its universality of outputting various media files and open-source nature. Adaptations were made to the main script to map python-vlc's functions to the appropriate button presses, present in Algorithms \ref{alg:initVLC} and \ref{alg:mappedBtnPress}.
 
 \begin{algorithm}[H]
   \caption{Initialisation of VLC Playlist - Python}
@@ -285,12 +210,13 @@ The python-vlc package was then installed to interface with it and have VLC act 
     media_player.set_media_list(playlist)
   \end{lstlisting}
 \end{algorithm}
+The MediaListPlayer here abstracts the entirety of the indexing of the music files, opting for a 'Black Box' solution, where each song within the \texttt{media\_list} is a separate object that cannot be interacted with directly. Instead, methods provided by python-vlc have to be utilised, as seen in algorithm \ref{alg:mappedBtnPress}.
 
 \begin{algorithm}[H]
   \caption{Mapped Button Presses - Python}
   \label{alg:mappedBtnPress}
   \begin{lstlisting}[language=Python]
-    buttonS_was_pressed = False # Ensures can be pressed only once
+    buttonS_was_pressed = False
     buttonP_was_pressed = False
     while True:
         buttonP_state = grovepi.digitalRead(buttonP_pin)
@@ -312,20 +238,20 @@ The python-vlc package was then installed to interface with it and have VLC act 
         time.sleep(0.05)
   \end{lstlisting}
 \end{algorithm}
-The pause/play button and skip button were now functional and can be used to interface with the proposed solution.
+Interestingly, separate pause and play logic was not necessary to implement as the \texttt{vlc.MediaListPlayer} pause function acts as a toggle and pauses or plays respective of the current state of the player. The buttons actions have now been mapped with their designated actions.
 
-To adjust for scalability and the implementation of more than one playlist, the function responsible for this was moved into a Python function. This was done for modularity and avoiding repeating code when a playlist is to be switched. It takes two arguments, the playlist name and if it is to be shuffled. If shuffle is not passed, it defaults to False. The code snippet can be seen in Algorithm \ref{alg:loadplaylist}.
+To adjust for scalability and the implementation of more than one playlist, the function responsible for this was moved into a dedicated Python function. This was done for modularity and avoiding repeating code when a playlist is to be switched. It takes two arguments, the playlist name and a shuffle boolean. If shuffle is not passed, it defaults to False. The code snippet can be seen in Algorithm \ref{alg:loadplaylist}.
 \begin{algorithm}[H]
   \caption{load\_playlist() - Python}
   \label{alg:loadplaylist}
   \begin{lstlisting}[language=Python]
     def loadplaylist(playlistName, shuffle="false"):
-        if playlistName == '': # Handling null inputs
+        if playlistName == '':
             return False
         
         try:
             os.listdir(f'AudioTracks/{playlistName}')
-        except FileNotFoundError: # If playlist folder doesn't exist
+        except FileNotFoundError:
             return False
         
         playlist = instance.media_list_new()
@@ -338,7 +264,7 @@ To adjust for scalability and the implementation of more than one playlist, the 
                 media = instance.media_new(f'AudioTracks/{playlistName}/{sound}')
                 playlist.add_media(media)
         else:
-            for sound in sorted(os.listdir(f'AudioTracks/{playlistName}')): # Sorts the playlist in alphabetical order
+            for sound in sorted(os.listdir(f'AudioTracks/{playlistName}')):
                 print(sound)
                 media = instance.media_new(f'AudioTracks/{playlistName}/{sound}')
                 playlist.add_media(media)
@@ -346,70 +272,28 @@ To adjust for scalability and the implementation of more than one playlist, the 
         return True
   \end{lstlisting}
 \end{algorithm}
+This function is able to discern between valid inputs and returns either a True if a playlist switch has successfully occured or a False if an error was caught (either through the playlist not existing or a null value being inputted). This provides a lightweight version of error checking that helped streamline the testing process, as seen in algorithm \ref{alg:playlistTest}. 
 
-The proposed solution can now play songs based off a pre-determined order in a folder, or play it shuffled. This section helped illustrate the importance of reading documentation of an external library and how its dedicated data structures could be interfaced with.
+This section helped illustrate the importance of reading documentation of an external library and how its dedicated data structures could be interfaced with.
 \subsection{Terminal Interaction}\label{subsec:terminal}
-Remote Management was one of the key aims for this project and without the presence of a GUI to facilite this requirement, terminal commands were introduced. The "remote" aspect came from connecting to the device using \gls{ssh} and interfacing with the terminal provided from the connection, as example of such can be seen in Figure \ref{fig:sshEg}.
+% % GOAL
+% Create terminal solution that can be interfaced using SSH
+% % APPROACH
+% UNIX Socket with client/server model
+% % KEY DECISIONS/FINDINGS
+% systemd gives no terminal
+
+Remote Management was one of the key aims for this project and without the presence of a GUI to facilite this requirement, terminal commands were introduced. The approach taken for terminal interaction was utilising Python's \texttt{socket} library, creating a socket network architecture. 
+
+The "remote" aspect for the Remote Management came from connecting to the device using \gls{ssh} and interfacing with the terminal provided from the connection, as example of such can be seen in Figure \ref{fig:sshEg}. \gls{ssh} was chosen as the remote solution as it is lightweight on a system, with the OpenSSH server not visibly impacting performance, and due to its security, requiring a key exchange at initial connection and credentials for each login attempt. Alternatives for remote management were also explored, such as \gls{vnc} with a desktop environment but a terminal window is still required.
+
 \begin{fullwidthfigure}[H]
   \centering
   \fbox{\rule{0pt}{1.3cm}\includegraphics[width=0.97\linewidth]{images/sshExample}}
   \caption[SSH Example]{SSH Example - Switching Playlists}\label{fig:sshEg}
 \end{fullwidthfigure}
 
-\gls{ssh} was chosen as the remote solution as it is lightweight on a system, with the OpenSSH server not visibly impacting performance, and due to its security, requiring a key exchange at initial connection and credentials for each login attempt. Should the user opt for a desktop environment, \gls{vnc} was also available, with the user having to open a terminal window through the desktop environment, as seen in Figure \ref{fig:vncEg}.
-
-\begin{fullwidthfigure}[H]
-  \centering
-  \fbox{\rule{0pt}{1.3cm}\includegraphics[width=0.97\linewidth]{images/vncExample}}
-  \caption[VNC Example]{VNC Example - Interfacing with Directory}\label{fig:vncEg}
-\end{fullwidthfigure}
-
-Terminal Interaction was originally setup through the use of a \texttt{While True} loop executing in tandem with the button recognition commands, using the \texttt{threading} library, as seen in Algorithm \ref{alg:threadingEG}. The button recognition was moved to a function named "background" to enable threading to occur, whereas the code within the function is the same as Algorithm \ref{alg:mappedBtnPress}. This allowed for the two functions to run in tandem with each other.
-
-\begin{algorithm}[H]
-  \caption{Running Terminal Commands using \texttt{threading} - Python}
-  \label{alg:threadingEG}
-  \begin{lstlisting}[language=Python]
-    threading1 = threading.Thread(target=background)
-    threading1.daemon = True
-    threading1.start()
-  \end{lstlisting}
-\end{algorithm}
-
-Once \texttt{main.py} was executed, it awaited inputs and utilised an "If" statement to decide on what to do, as seen in Algorithm \ref{alg:IFstatement}. The author was to make use of a Structural Pattern Match in the form of a "match case" statement, but this feature wasn't implemented till Python 3.10 (one version ahead of the one present on the Raspberry Pi) \citep{PythonSoftwareFoundation2023}.
-
-\begin{algorithm}[H]
-  \caption{If Statements for Terminal Commands - Python}
-  \label{alg:IFstatement}
-  \begin{lstlisting}[language=Python]
-    while True:
-        command_input = input("Enter a command: ")
-     
-        if command_input.lower() == "p":
-            media_player.pause()
-        elif command_input.lower() == "s":
-            media_player.next()
-        elif command_input.lower() == "switch":
-            playlistChange = input("What's the name of the playlist?: ")
-            try:
-                media_player.stop()
-                loadplaylist(playlistChange)
-                print("Switching Playlist...")
-                time.sleep(0.5)
-                media_player.play()
-            except FileNotFoundError:
-                print("Playlist doesn't exist")
-                media_player.play()
-        elif command_input.lower() == "help":
-            print('--------------\nhelp: displays commands available\ns: skips current song\np: pauses current song\nexit: closes music program\n--------------')
-        elif command_input.lower() == "exit":
-            print("\nExiting")
-            grovepi.digitalWrite(buttonP_pin -1, 0)
-            break 
-        else:
-            print('Invalid command, try again. To see list of commands, type "help"')
-  \end{lstlisting}
-\end{algorithm}
+Given the development context of the proposed solution, where \texttt{systemd} is utilised for running the main script on start-up, the socket architecture was chosen to send and receive commands via Python files, allowing for any \gls{ssh} session and terminal to interface with the device. A simpler approach was originally setup through the use of a \texttt{While True} loop executing in tandem with the button recognition commands, using the \texttt{threading} library, but the lack of an attached terminal ruled out this approach. Anthropic's \gls{llm} Claude was able to assist here, originally suggesting the utilisation of sockets, which it later drafted an implementation for \citep{AnthropicMarch2026}. 
 
 The commands the user has at their disposal are:
 \begin{itemize}
@@ -419,12 +303,9 @@ The commands the user has at their disposal are:
     \item help, providing a menu on what each command does 
 \end{itemize}
 
-This initial approach however, wasn't viable the moment \texttt{main.py} was executed at start time, covered fully in section \ref{subsec:startup}. No terminal was available when the Python file was executed as part of a service so alternative methods of passing commands had to be explored. Anthropic's \gls{llm} Claude was able to assist here, suggesting the utilisation of sockets, which it later drafted an implementation \citep{AnthropicMarch2026}. 
+Using a UNIX socket, a secondary smaller script \texttt{client.py} would send a message to \texttt{main.py} (now being renamed \texttt{client.py}) to decode and execute the command the message contained. The socket receiver now also needed to run in tandem, so it became the 2\textsuperscript{nd} thread and was executed using the \texttt{threading} library.
 
-Instead of an open terminal running the terminal through \texttt{main.py}, a secondary smaller script \texttt{client.py} would send a message to \texttt{main.py} (now being renamed \texttt{client.py}) to decode and execute the command the message contained. The socket receiver now also needed to run in tandem, so it becamse the 2\textsuperscript{nd} thread and was executed using the \texttt{threading} library.
-
-Both \texttt{client.py} and \texttt{server.py} use the \texttt{socket} library to send and receive these messages. \texttt{client.py} can be seen in Algorithm \ref{alg:clientpy} and \texttt{server.py}'s socket receiver function can be seen as a snippet in Algorithm \ref{alg:socketReceiverSnip}. One limitation of \texttt{client.py} is the ability to only run one command per Python script execution; sending more caused the tunnel to collapse and would need to be restarted regardless.
-
+The 2 Python facilitating the communication over the socket architecture \texttt{client.py} and \texttt{server.py} can be seen in Algorithms \ref{alg:clientpy} and \ref{alg:socketReceiverSnip}.
 \begin{algorithm}[H]
   \caption{client.py - Python}
   \label{alg:clientpy}
@@ -433,45 +314,47 @@ Both \texttt{client.py} and \texttt{server.py} use the \texttt{socket} library t
     import sys
 
     def send_command(command):
-        if command == '': # Handle Null Values
+        if command == '':
             return "Invalid command\n"
         
         socket_path = '/tmp/musicplayer.sock'
-        client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) # Using a UNIX socket
+        client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         client.connect(socket_path)
         
         client.send(command.encode())
-        response = client.recv(1024).decode() # Receives a maximum of 1024 bytes
+        response = client.recv(1024).decode()
         client.close()
         return response
 
-    if __name__ == '__main__': # Prevent running as script
+    if __name__ == '__main__':
         command = ' '.join(sys.argv[1:])
         response = send_command(command)
         print(response)
   \end{lstlisting}
 \end{algorithm}
+\texttt{client.py} takes the arguments that have been passed alongside its execution and encodes them to send over the UNIX socket. The response is limited to 1024 bytes due to them being simple enough, anymore would be unnecessary. This can be easily amended should more complex functionality be implemented.
 
 \begin{algorithm}[H]
   \caption{terminal\_server() Snippet - Python}
   \label{alg:socketReceiverSnip}
   \begin{lstlisting}[language=Python]
     def terminal_server():
-        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) # Transmitted locally
+        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         socket_path = '/tmp/musicplayer.sock'
         if os.path.exists(socket_path):
-            os.remove(socket_path) # Deletes previous path if not cleaned up after last command 
+            os.remove(socket_path)
         server.bind(socket_path)
         server.listen(1) # Listens out to only one command  
         while True:
             conn, _ = server.accept()
-            data = conn.recv(1024).decode().strip() # Buffer of 1024 bytes as commands are small
+            data = conn.recv(1024).decode().strip()
   \end{lstlisting}
 \end{algorithm}
+To ensure that the clean-up process has been executed, \texttt{terminal\_server()} checks if the socket path already exists and deletes it if it remains. This ensures that the current socket has not impacted by previous commands that may have been passed prior to the execution of \texttt{client.py}.
 
 The device could now receive terminal commands through any \gls{ssh} terminal. This section was able to bring light to how two separate Python scripts are able to interact with each other, simulating a network connection through the use of Python's \texttt{socket} library.
 \subsection{Start-up Behaviour}\label{subsec:startup}
-The device should not need remote interaction on start-up. If this was to be omitted, this would overcomplicate the device and make it inferior to devices already on the market, where simplicity thrives. Remote Management should be an add-on, rather than a necessary tool. The device therefore needed to start playing music the moment it turns on, or reboots after a power cut. This was done through the use of \texttt{systemd} on the Raspberry Pi, where a service was created that would run \texttt{server.py} the moment a user has logged on the Pi (which happens automatically).
+The device should not need remote interaction on start-up. If this was to be omitted, this would overcomplicate the device and make it inferior to devices already on the market, where simplicity thrives. Remote Management should be an add-on, rather than a necessary tool. The device therefore needed to start playing music the moment it turns on, or reboots after a power cut. This was done through the use of \texttt{systemd} on the Raspberry Pi, where a service was created that would run \texttt{server.py}.
 
 Algorithm \ref{alg:playerServ} shows how \texttt{mediaplayer.service} file utilised in \texttt{systemd}. This service was moved to \texttt{/etc/systemd/system/} and activated using \texttt{systemctl start mediaplayer.service} resulting in it being executed each time the Raspberry Pi reboots. 
 \begin{algorithm}[H]
@@ -486,7 +369,6 @@ Algorithm \ref{alg:playerServ} shows how \texttt{mediaplayer.service} file utili
     ExecStart=/usr/bin/python3 /home/pi/cm3203-project/server.py
     WorkingDirectory=/home/pi/cm3203-project
     User=pi
-    # This helps VLC and PulseAudio find the user session bus (as only created when user has logged in)
     Environment=XDG_RUNTIME_DIR=/run/user/1000
     Restart=on-failure
     RestartSec=5
@@ -495,49 +377,15 @@ Algorithm \ref{alg:playerServ} shows how \texttt{mediaplayer.service} file utili
     WantedBy=multi-user.target
   \end{lstlisting}
 \end{algorithm}
+The utilisation of \texttt{Environment=XDG\_RUNTIME\_DIR=/run/user/1000} here ensures that the user has logged on, which happens automatically on start-up. It specifically double checks if the user session buffer has been created, ensuring VLC and PulseAudio are running, which \texttt{client.py} is dependent on. 
 
-As the device utilises a Bluetooth speaker to play the desired media, the Bluetooth device needed to be paired on start-up as well. This was ensured through a function in \texttt{server.py} that executes before the main script does. It attempts to connect to a given MAC address of a Bluetooth device a total of 10 times, before it times out. This time-out then allowed for support to be carried out by a carer to connect a Bluetooth device manually. Algorithm \ref{alg:bluetoothCon} demonstrates how Bluetooth connection was executed.
-\begin{algorithm}[H]
-  \caption{connect\_bluetooth() - Python}
-  \label{alg:bluetoothCon}
-  \begin{lstlisting}[language=Python]
-    def connect_bluetooth(mac_address):
-        time.sleep(10) # Buffer time to allow for main start-up process to occur
-        print('Attempting initial connection...')
-        output = subprocess.run(["bluetoothctl", "connect", mac_address], capture_output=True, text=True)
-        for i in range(10):
-            if 'Connection successful\n' not in output.stdout:
-                print('Attempting reconnection...')
-                output = subprocess.run(["bluetoothctl", "connect", mac_address], capture_output=True, text=True)
-                print(output.stdout)
-                time.sleep(3)
-  \end{lstlisting}
-\end{algorithm}
+As the device utilises a Bluetooth speaker to play the desired media, the Bluetooth device needed to be paired on start-up as well. This was ensured through a function in \texttt{server.py} that executes before the main script does. It attempts to connect to a given MAC address of a Bluetooth device a total of 10 times, before it times out. This time-out then allowed for support to be carried out by a carer to connect a Bluetooth device manually. 
 
-To ensure that some music is also played on start-up, the \texttt{load\_playlist()} function was called with a text file called \texttt{defaultplaylist.txt} that the end user is free to amend to a different playlist. This is illustrated in Algorithm \ref{alg:defaultPlaySnip}.
-\begin{algorithm}[H]
-  \caption{defaultplaylist load snippet - Python}
-  \label{alg:defaultPlaySnip}
-  \begin{lstlisting}[language=]
-    f = open('defaultplaylist.txt')
-    defaultplaylist = f.read().strip().split()
-
-    if __name__ == '__main__':
-        MAC = "F8:AB:E5:4B:67:71"
-        connect_bluetooth(MAC)
-        if len(defaultplaylist) == 2: # If shuffle has been passed as an argument
-            loadplaylist(defaultplaylist[0], defaultplaylist[1])
-        else:
-            loadplaylist(defaultplaylist[0])
-        print("Ready!")
-  \end{lstlisting}
-\end{algorithm}
+To ensure that some music is also played on start-up, the \texttt{load\_playlist()} function was called with a text file called \texttt{defaultplaylist.txt} that the end user is free to amend to a different playlist.
 
 This section demonstrated how modern Linux systems execute programs on start-up through \texttt{systemd} through the utilisation of \texttt{.service} files.
 \subsection{NFC Reading and Command Execution}\label{subsec:NFC}
-As time allowed during the development of this project, tangible item interaction utilising \gls{nfc} was implemented alongside the button interaction. Due to the \gls{nfc} module communicating over a \gls{uart} interface, an Arudino was necessary to facilite this connection. The provided \gls{nfc} module could be switched to interface using \gls{i2c} but soldering would be necessary to switch interfaces \citep{gunengyu2022} and an official Python library from the manufacturer did not exist.
-
-The Arduino could not be fitted to the top of the Raspberry Pi due to the GrovePi+ already being seated on top, having the devices communicate over a USB bus instead. The Arduino was fitted with a base shield that contained a \gls{uart} port that the \gls{nfc} module was connectes to. 
+As time allowed during the development of this project, tangible item interaction utilising \gls{nfc} was implemented alongside the button interaction. This was done through connecting the Raspberry Pi and an Arduino with the \gls{nfc} module attached to a \gls{uart} connection. These two devices were then connected over a USB, with the Raspberry Pi reading the output from the serial port of the USB bus.
 
 The Arduino had two sketches, one for writing to the \gls{nfc} tags (Algorithm \ref{alg:writeNFC}) and one for reading them (Algorithm \ref{alg:readNFC}). Both scripts were adapted from sketches provided from the IOT Garage Lab Book GitLab \citep{Perera2024} and included a library to be able to interface with the module on the Arduino \citep{SeeedStudios2020}.
 
@@ -563,17 +411,15 @@ The Arduino had two sketches, one for writing to the \gls{nfc} tags (Algorithm \
     void loop() {
         if (nfc.tagPresent()) {
             Serial.println("NFC TAG FOUND");
-            // 14. Create an NdefMessage object to write a simple text or URI record to the NFC tag.
             NdefMessage message = NdefMessage();
+
             message.addUriRecord(record_entry);
-            // 15. Attempt to write this new message to the NFC tag using nfc.write().
+
             bool success = nfc.write(message);
             
             if (success) {
                 Serial.println("Write succeeded.");
             } else {
-                // NOTE: The original code had a capitalization error ("SERIAL.println").
-                //       Ensuring consistency here as "Serial.println".
                 Serial.println("Write failed.");
             }
         }
@@ -608,7 +454,7 @@ The Arduino had two sketches, one for writing to the \gls{nfc} tags (Algorithm \
   \end{lstlisting}
 \end{algorithm}
 
-Once the tags have been written and been presented to the \gls{nfc} module, \texttt{server.py} extracts the information using Regular Expressions from the serial output of the USB bus, located through executing \texttt{ls} in \texttt{/dev/} \citep{Quibits2026}, and switches playlists based off the payload passed on the \gls{nfc} tag, as seen in Algorithm \ref{alg:readNFCPy}.
+Once the tags have been written and been presented to the \gls{nfc} module, \texttt{server.py} extracted the information using Regular Expressions from the serial output of the USB bus, located through executing \texttt{ls} in \texttt{/dev/} \citep{Quibits2026}, and switches playlists based off the payload passed on the \gls{nfc} tag, as seen in Algorithm \ref{alg:readNFCPy}.
 
 \begin{algorithm}[H]
   \caption{nfc\_reader\_switch() - Python}
@@ -618,20 +464,21 @@ Once the tags have been written and been presented to the \gls{nfc} module, \tex
     serial_port = '/dev/ttyACM0'
     baud_rate = 9600
 
-    ser = serial.Serial(serial_port, baud_rate) # Opening Serial Port on USB port Arduino is connected to.
+    ser = serial.Serial(serial_port, baud_rate)
    
     while True:
         serData = ser.readline().decode('utf-8', errors='ignore')
-        if serData.startswith("    Payload"): # Selects specifically Payload
-            if serData.startswith("    Payload L") == False: # Ignores Payload Length
+        if serData.startswith("    Payload"):
+            if serData.startswith("    Payload L") == False:
                 print(serData)
-                 message = re.findall(r'\.([a-zA-Z]+(?:\s+[a-zA-Z]+)?)', serData) # Extracts just text information from Payload
+                pattern = r'\.([a-zA-Z]+(?:\s+[a-zA-Z]+)?)'
+                message = re.findall(pattern, serData) 
                 if len(message) == 0:
                     print('Error reading NFC tag, attempt again...')
                 else:
-                    split_msg = message[0].split() # Splits message in case NFC tag has shuffle parameter
+                    split_msg = message[0].split()
                     media_player.stop()
-                    if len(split_msg) > 1: # If shuffle parameter present
+                    if len(split_msg) > 1:
                         loadplaylist(split_msg[0], split_msg[1])
                     else:
                         loadplaylist(message[0])
@@ -639,6 +486,8 @@ Once the tags have been written and been presented to the \gls{nfc} module, \tex
 
   \end{lstlisting}
 \end{algorithm}
+The regular expression here extracts exactly the information that is needed from the NFC tag, given its formatting. Most of the data provided by scanning the NFC tag is unnecessary for the application for the proposed solution, so is omitted through checking for the desired line that carries the payload.
+
 This section demonstrated how two separate embedded systems are able to communicate with each other, using a common interface as an intermediary (in this case, the serial port).
 
 \section{Summary}\label{sec:summary}
