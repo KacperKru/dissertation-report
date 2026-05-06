@@ -153,16 +153,16 @@ Incompatibilities throughout development helped inform this choice. They ranged 
 
 The GrovePi+ itself and its accompanying software and libraries helped identify each of these dependencies. Correct Raspberry Pi OS image choice went on to highlight the importance of the development environment as a whole, rather than in terms of package incompatibilities. This was largely due to the GrovePi+ also being a peripheral that has since been discontinued \citep{PiHut} so continued support from the manufacturer had ceased at the time of the development of the proposed solution.
 
-The pre-configured image provided by Dexter Industries for the GoPiGo family of robots was considered as a potential candidate for the operating system \citep{DexterIndustriesGoPiGo2026} but after examining the image, it was not suitable for the use case, being bloated with unnecessary applications and local web server hosting that would waste system resources when running idle.
+The pre-configured image provided by Dexter Industries for the GoPiGo family of robots was considered as a potential candidate for the operating system \citep{DexterIndustriesGoPiGo2026} but after examining the image, it was not suitable for the use case, being bloated with unnecessary applications and a local web server hosting that would waste system resources when running idle.
 
 The importance of the open-source community helped drive the image choice as the kernel incompatibility \citep{cyclicalobsessive2024} and countless other nuances of other images (such as lacking appropriate public keys for \texttt{apt update} \citep{Jean2026} and outdated source lists in \texttt{/etc/apt/sources.list} \citep{rpdom2026}) were identified through community driven web-forums.
 
 The decision to follow a guide provided by IOT Garage \citep{IOTGarage2025} and the installation of the \texttt{2024-10-22-raspios-bullseye} image was made, which is the current image on the proposed solution. This provided a compromise for currency of the image and having the appropriate OS kernel and \gls{i2c} communication framework. The only deviation from the guide is the copying of both the \texttt{di\_i2c} and \texttt{di\_mutex} modules (they both depend on each other) into the Python 3.9 directory.
-\begin{fullwidthfigure}[H]
-  \centering
-  \fbox{\rule{0pt}{2cm}\includegraphics[width=0.97\linewidth]{images/workinggpi}}
-  \caption[Movement of Modules and Test grovepi call]{Movement of Modules and Test grovepi call}\label{fig:workinggpi}
-\end{fullwidthfigure}
+    \begin{fullwidthfigure}[H]
+    \centering
+    \fbox{\rule{0pt}{2cm}\includegraphics[width=0.97\linewidth]{images/workinggpi}}
+    \caption[Movement of Modules and Test grovepi call]{Movement of Modules and Test grovepi call}\label{fig:workinggpi}
+    \end{fullwidthfigure}
 
 The initial setup was now complete and development of the solution could commence. Although time-consuming, the initial setup helped highlight the idiosyncrasies of working on embedded systems. In a final system, working with peripherals that interfaced directly with the Raspberry Pi's \gls{gpio} pins would be prioritised instead. This would mitigate software dependencies as no third-party libraries would be necessary for interfacing with all of the peripherals, as the core library \texttt{GPIOZero} comes pre-installed on the latest Raspberry Pi Images \citep{bennuttal2024}. 
 
@@ -272,20 +272,13 @@ To adjust for scalability and the implementation of more than one playlist, the 
         return True
   \end{lstlisting}
 \end{algorithm}
-This function is able to discern between valid inputs and returns either a True if a playlist switch has successfully occured or a False if an error was caught (either through the playlist not existing or a null value being inputted). This provides a lightweight version of error checking that helped streamline the testing process, as seen in algorithm \ref{alg:playlistTest}. 
+This function is able to discern between valid inputs and returns either a True if a playlist switch has successfully occurred or a False if an error was caught (either through the playlist not existing or a null value being inputted). This provides a lightweight version of error checking that helped streamline the testing process, as seen in algorithm \ref{alg:playlistTest}. 
 
 This section helped illustrate the importance of reading documentation of an external library and how its dedicated data structures could be interfaced with.
 \subsection{Terminal Interaction}\label{subsec:terminal}
-% % GOAL
-% Create terminal solution that can be interfaced using SSH
-% % APPROACH
-% UNIX Socket with client/server model
-% % KEY DECISIONS/FINDINGS
-% systemd gives no terminal
-
 Remote Management was one of the key aims for this project and without the presence of a GUI to facilite this requirement, terminal commands were introduced. The approach taken for terminal interaction was utilising Python's \texttt{socket} library, creating a socket network architecture. 
 
-The "remote" aspect for the Remote Management came from connecting to the device using \gls{ssh} and interfacing with the terminal provided from the connection, as example of such can be seen in Figure \ref{fig:sshEg}. \gls{ssh} was chosen as the remote solution as it is lightweight on a system, with the OpenSSH server not visibly impacting performance, and due to its security, requiring a key exchange at initial connection and credentials for each login attempt. Alternatives for remote management were also explored, such as \gls{vnc} with a desktop environment but a terminal window is still required.
+The "remote" aspect for the Remote Management came from connecting to the device using \gls{ssh} and interfacing with the terminal provided from the connection, an example of such can be seen in Figure \ref{fig:sshEg}. \gls{ssh} was chosen as the remote solution as it is lightweight on a system, with the OpenSSH server not visibly impacting performance, and due to its security, requiring a key exchange at initial connection and credentials for each login attempt. Alternatives for remote management were also explored, such as \gls{vnc} with a desktop environment but a terminal window is still required.
 
 \begin{fullwidthfigure}[H]
   \centering
@@ -303,9 +296,9 @@ The commands the user has at their disposal are:
     \item help, providing a menu on what each command does 
 \end{itemize}
 
-Using a UNIX socket, a secondary smaller script \texttt{client.py} would send a message to \texttt{main.py} (now being renamed \texttt{client.py}) to decode and execute the command the message contained. The socket receiver now also needed to run in tandem, so it became the 2\textsuperscript{nd} thread and was executed using the \texttt{threading} library.
+Using a UNIX socket, a secondary smaller script \texttt{client.py} would send a message to \texttt{main.py} (now being renamed \texttt{server.py}) to decode and execute the command the message contained. The socket receiver now also needed to run in tandem, so it became the 2\textsuperscript{nd} thread and was executed using the \texttt{threading} library.
 
-The 2 Python facilitating the communication over the socket architecture \texttt{client.py} and \texttt{server.py} can be seen in Algorithms \ref{alg:clientpy} and \ref{alg:socketReceiverSnip}.
+The two Python scripts facilitating the communication over the socket architecture \texttt{client.py} and \texttt{server.py} can be seen in Algorithms \ref{alg:clientpy} and \ref{alg:socketReceiverSnip}.
 \begin{algorithm}[H]
   \caption{client.py - Python}
   \label{alg:clientpy}
@@ -344,7 +337,7 @@ The 2 Python facilitating the communication over the socket architecture \texttt
         if os.path.exists(socket_path):
             os.remove(socket_path)
         server.bind(socket_path)
-        server.listen(1) # Listens out to only one command  
+        server.listen(1)
         while True:
             conn, _ = server.accept()
             data = conn.recv(1024).decode().strip()
@@ -354,9 +347,9 @@ To ensure that the clean-up process has been executed, \texttt{terminal\_server(
 
 The device could now receive terminal commands through any \gls{ssh} terminal. This section was able to bring light to how two separate Python scripts are able to interact with each other, simulating a network connection through the use of Python's \texttt{socket} library.
 \subsection{Start-up Behaviour}\label{subsec:startup}
-The device should not need remote interaction on start-up. If this was to be omitted, this would overcomplicate the device and make it inferior to devices already on the market, where simplicity thrives. Remote Management should be an add-on, rather than a necessary tool. The device therefore needed to start playing music the moment it turns on, or reboots after a power cut. This was done through the use of \texttt{systemd} on the Raspberry Pi, where a service was created that would run \texttt{server.py}.
+The device should not need remote interaction on start-up. If this was to be omitted, this would overcomplicate the device and make it inferior to devices already on the market, where simplicity thrives. Remote Management should be an add-on, rather than a necessary tool. The device therefore needed to start playing music the moment it turns on, or reboot after a power cut. This was done through the use of \texttt{systemd} on the Raspberry Pi, where a service was created that would run \texttt{server.py}.
 
-Algorithm \ref{alg:playerServ} shows how \texttt{mediaplayer.service} file utilised in \texttt{systemd}. This service was moved to \texttt{/etc/systemd/system/} and activated using \texttt{systemctl start mediaplayer.service} resulting in it being executed each time the Raspberry Pi reboots. 
+Algorithm \ref{alg:playerServ} shows the \texttt{mediaplayer.service} file utilised in \texttt{systemd}. This service was moved to \texttt{/etc/systemd/system/} and activated using \texttt{systemctl start mediaplayer.service} resulting in it being executed each time the Raspberry Pi reboots. 
 \begin{algorithm}[H]
   \caption{mediaplayer.service}
   \label{alg:playerServ}
@@ -377,7 +370,7 @@ Algorithm \ref{alg:playerServ} shows how \texttt{mediaplayer.service} file utili
     WantedBy=multi-user.target
   \end{lstlisting}
 \end{algorithm}
-The utilisation of \texttt{Environment=XDG\_RUNTIME\_DIR=/run/user/1000} here ensures that the user has logged on, which happens automatically on start-up. It specifically double checks if the user session buffer has been created, ensuring VLC and PulseAudio are running, which \texttt{client.py} is dependent on. 
+The utilisation of \texttt{Environment=XDG\_RUNTIME\_DIR=/run/user/1000} here ensures that the user has logged on, which happens automatically on start-up. It specifically double checks if the user session buffer has been created, ensuring VLC and PulseAudio are running, which \texttt{server.py} is dependent on. 
 
 As the device utilises a Bluetooth speaker to play the desired media, the Bluetooth device needed to be paired on start-up as well. This was ensured through a function in \texttt{server.py} that executes before the main script does. It attempts to connect to a given MAC address of a Bluetooth device a total of 10 times, before it times out. This time-out then allowed for support to be carried out by a carer to connect a Bluetooth device manually. 
 
@@ -501,3 +494,5 @@ The methodology for this project aimed to tackle each feature individually on a 
     \item Implemenet \gls{nfc} interaction to switch playlists.
 \end{enumerate}
 This methodology remained fluid throughout development as no strict deadlines were imposed for the creation of these features. The methodology will be discussed more in depth in section \ref{sec:discussion}.
+
+Examples and evidence of all of the components and modules working can be seen in Appendix \ref{sec:outputEvidence}

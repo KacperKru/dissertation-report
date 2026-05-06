@@ -137,36 +137,36 @@ This was done by creating counters in the form of a list (as they are mutable) t
 \end{algorithm}
 
 \begin{algorithm}[H]
-  \caption{Amended nfc\_reader\_switch() with counter parameters - Python}
+  \caption{Amended nfc\_reader\_switch(successfulNFCReads, attemptedNFCReads) with counter parameters - Python}
   \label{alg:testNFCSwitch}
   \begin{lstlisting}[language=Python]
-    def nfc_reader_switch(successfulNFCReads, attemptedNFCReads): # Accetps new arguments
-        #Accepting NFC Tags
-        serial_port = '/dev/ttyACM0'
-        baud_rate = 9600
+    #Accepting NFC Tags
+    serial_port = '/dev/ttyACM0'
+    baud_rate = 9600
 
-        ser = serial.Serial(serial_port, baud_rate)
+    ser = serial.Serial(serial_port, baud_rate)
 
-        while True:
-            serData = ser.readline().decode('utf-8', errors='ignore')
-            if serData.startswith("    Payload"):
-                if serData.startswith("    Payload L") == False:
-                    print(serData)
-                    attemptedNFCReads[0] += 1 # Attempted read occured
-                    message = re.findall(r'\.([a-zA-Z]+(?:\s+[a-zA-Z]+)?)', serData)
-                    split_msg = message[0].split()
-                    media_player.stop()
-                    print(attemptedNFCReads)
-                    if len(split_msg) == 0:
-                        print('Error reading NFC tag, attempt again...')
+    while True:
+        serData = ser.readline().decode('utf-8', errors='ignore')
+        if serData.startswith("    Payload"):
+            if serData.startswith("    Payload L") == False:
+                print(serData)
+                attemptedNFCReads[0] += 1
+                pattern = r'\.([a-zA-Z]+(?:\s+[a-zA-Z]+)?)'
+                message = re.findall(pattern, serData) 
+                split_msg = message[0].split()
+                media_player.stop()
+                print(attemptedNFCReads)
+                if len(split_msg) == 0:
+                    print('Error reading NFC tag, attempt again...')
+                else:
+                    if len(split_msg) > 1:
+                        loadplaylist(split_msg[0], split_msg[1])
+                        successfulNFCReads[0] += 1
                     else:
-                        if len(split_msg) > 1:
-                            loadplaylist(split_msg[0], split_msg[1])
-                            successfulNFCReads[0] += 1 # If data extracted successfully, marked as successful
-                        else:
-                            loadplaylist(message[0])
-                            successfulNFCReads[0] += 1
-                    media_player.play()
+                        loadplaylist(message[0])
+                        successfulNFCReads[0] += 1
+                media_player.play()
   \end{lstlisting}
 \end{algorithm}
 
@@ -256,7 +256,7 @@ Being a self-contained function that did not require human interaction during it
 \end{table}
 All of the unit tests for this function were able to pass, demonstrating how the function is supposed to behave. 
 \subsection{NFC System Testing Results}\label{subsec:NFCResults}
-The \gls{nfc} module also required human interaction during the testing process so was subject to system tests. The process of the test was to leave a \gls{nfc} tag onto the antenna for 100 cycles of scanning the tag and see what percentage scans were successful. The results of this test are visible in Table \ref{tab:NFCScanResults}
+The \gls{nfc} module also required human interaction during the testing process so was subject to system tests. The process of the test was to leave a \gls{nfc} tag on the antenna for 100 cycles of scanning the tag and see what percentage scans were successful. The results of this test are visible in Table \ref{tab:NFCScanResults}
 \clearpage
 \begin{table}[H]
   \centering
